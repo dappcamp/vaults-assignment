@@ -2,6 +2,8 @@
 /* eslint-disable no-console */
 /* eslint-disable no-restricted-syntax */
 import "@nomiclabs/hardhat-waffle";
+import "@typechain/hardhat";
+import "@nomiclabs/hardhat-ethers";
 import { task, HardhatUserConfig } from "hardhat/config";
 
 // This is a sample Hardhat task. To learn how to create your own go to

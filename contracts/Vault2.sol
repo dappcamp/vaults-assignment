@@ -17,7 +17,7 @@ contract Vault2 is ERC20 {
     emit Minted(_amount);
   }
 
-  function burn(uint256 _amount) payable public {
+  function burn(uint256 _amount) public {
     require(_amount > 0, "Invalid amount, should be greater than 0.");
 
     ERC20._burn(msg.sender, _amount);
