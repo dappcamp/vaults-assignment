@@ -2,15 +2,12 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Vault1 {
-    string public constant name = "Vault1";
-    string public constant symbol = "VAULT1";
     IERC20 public token;
     
-    constructor() {
-        token = new ERC20(name, symbol);
+    constructor(address tokenAddress) {
+        token = IERC20(tokenAddress);
     }
     // events
     event Deposit(uint _amount);
@@ -25,11 +22,11 @@ contract Vault1 {
     }
 
     // prevent caller from withdrawing amount more than the balance
-    // function withdraw(uint _amount) public {
-    //     require(_balances[msg.sender] >= _amount, "Invalid amount to withdraw");
+    function withdraw(uint _amount) payable external {
+        require(token.balanceOf(msg.sender) >= _amount, "Invalid amount to withdraw");
 
-    //     _balances[msg.sender] -= _amount;
+        token.transferFrom(address(this), msg.sender, _amount);
 
-    //     emit Withdraw(_amount);
-    // }
+        emit Withdraw(_amount);
+    }
 }

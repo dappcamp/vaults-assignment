@@ -6,7 +6,7 @@ describe("Vault 1", () => {
 		Vault1 = await ethers.getContractFactory("Vault1");
 		[owner, account1] = await ethers.getSigners();
 
-		vault1 = await Vault1.deploy();
+		vault1 = await Vault1.deploy(account1.address);
 
 		await vault1.deployed();
 	});
