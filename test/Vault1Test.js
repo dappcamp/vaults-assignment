@@ -1,13 +1,49 @@
-const { expect } = require("chai");
+const { expect, should } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("Vault 1", () => {
-	beforeEach(async () => {
-		Vault1 = await ethers.getContractFactory("Vault1");
-		[owner] = await ethers.getSigners();
+	let vault1;
+	let owner;
+	let account;
 
-		vault1 = await Vault1.deploy();
-
+	beforeEach("deploy contract", async () => {
+		vault1ContractFactory = await ethers.getContractFactory("Vault1");
+		[owner, account] = await ethers.getSigners();
+		vault1 = await vault1ContractFactory.deploy();
 		await vault1.deployed();
+	});
+
+	describe("deposit", () => {
+		it("should emit Deposit event after successful deposit", async () => {
+			const DEPOSITED_AMOUNT = 10;
+			await expect(vault1.connect(account).deposit(DEPOSITED_AMOUNT, {
+				value: ethers.utils.parseEther("10.0")
+			}))
+			.to.emit(vault1, "Deposit")
+			.withArgs(DEPOSITED_AMOUNT);
+		});
+	});
+
+	describe("withdraw", () => {
+		it("should emit Withdraw event after successful withdraw", async () => {
+			const DEPOSITED_AMOUNT = 10;
+			await vault1.connect(account).deposit(DEPOSITED_AMOUNT, {
+				value: ethers.utils.parseEther("10.0")
+			});
+			await expect(vault1.connect(account).withdraw(DEPOSITED_AMOUNT))
+				.to.emit(vault1, "Withdraw")
+				.withArgs(DEPOSITED_AMOUNT);
+		});
+
+		it("should not be able to withdraw more than deposited amount", async () => {
+			const DEPOSITED_AMOUNT = 10;
+			await expect(vault1.connect(account).deposit(DEPOSITED_AMOUNT, {
+				value: ethers.utils.parseEther("10.0")
+			}));
+			await vault1.connect(account).withdraw(DEPOSITED_AMOUNT);
+			await expect(
+				vault1.connect(account).withdraw(1)
+			).to.be.revertedWith("Cannot withdraw more than balance");
+		});
 	});
 });
