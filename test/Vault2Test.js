@@ -39,10 +39,18 @@ describe("Vault 2", () => {
 
 	describe("burn", function() {
 		it("should burn if balance is sufficient", async function () {
-			await vault2.mint(1000, { value: 1000 });
+			initialBalance = await owner.getBalance();
+
+			ether = ethers.utils.parseEther("1");
+			await vault2.mint(ether.mul(100), { value: ether.mul(100) });
 			await expect(
-				vault2.burn(500)
-			).to.emit(vault2, "Burned").withArgs(owner.address, 500);
+				vault2.burn(ether.mul(50))
+			).to.emit(vault2, "Burned").withArgs(owner.address, ether.mul(50));
+
+			// Final balance should be initialBalance - 50eth, minus gas (which should be within 0.001 eth).
+			expect(await owner.getBalance()).to.be.closeTo(
+				initialBalance.sub(ether.mul(50)),
+				ethers.utils.parseEther("0.001"));
 		});
 
 		it("should not burn if balance is insufficient", async function () {
