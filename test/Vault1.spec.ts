@@ -12,6 +12,7 @@ describe("Vault1", () => {
 
   beforeEach(async () => {
     Vault1 = await ethers.getContractFactory("Vault1");
+
     accounts = await ethers.getSigners();
     [owner] = accounts;
     [account1] = accounts;
@@ -21,11 +22,22 @@ describe("Vault1", () => {
     await vault1.deployed();
   });
 
+  // deposit: invalid tokens, invalid amounts, token overflow
+  // 1 account, many tokens, many amounts
+  //
+
   describe("deposit", () => {
-    it("should revert when not called by an owner", async () => {
-      await expect(vault1.connect(account1).deposit(1)).to.be.revertedWith(
-        "Not an owner"
+    it("Should revert when an invalid deposit amount is provided", async () => {
+      await expect(vault1.connect(account1).deposit(0)).to.be.revertedWith(
+        "Invalid deposit amount, must be greater than 0"
       );
+
+      // @todo (lucas): check how to test that _amount is an unsigned integer
+      // await expect(vault1.connect(account1).deposit(-1)).to.throw();
+    });
+
+    it("Should revert when an invalid deposit amount is provided", async () => {
+      //
     });
   });
 });
