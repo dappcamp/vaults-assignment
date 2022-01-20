@@ -10,7 +10,7 @@ contract Vault2 is ERC20 {
 
   function mint(uint256 _amount) payable public {
     require(_amount > 0, "Invalid amount, should be greater than 0.");
-    require(msg.value == _amount, "Invalid amount, it should equal the amount of Ether in the transaction.");
+    require(msg.value == _amount, "Invalid amount, it should equal the amount of wei in the transaction.");
 
     ERC20._mint(msg.sender, msg.value);
 

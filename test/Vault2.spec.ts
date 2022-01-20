@@ -8,15 +8,15 @@ describe("Vault2", () => {
   let Vault2: ContractFactory;
   let vault2: Vault2Type;
   let accounts: SignerWithAddress[];
-  let owner: SignerWithAddress;
   let account1: SignerWithAddress;
+  let account2: SignerWithAddress;
 
   beforeEach(async () => {
     Vault2 = await ethers.getContractFactory("Vault2");
 
     accounts = await ethers.getSigners();
-    [owner] = accounts;
     [account1] = accounts;
+    [account2] = accounts;
 
     vault2 = (await Vault2.deploy()) as Vault2Type;
 
@@ -34,7 +34,7 @@ describe("Vault2", () => {
       await expect(
         vault2.connect(account1).mint(10, { value: 1 })
       ).to.be.revertedWith(
-        "Invalid amount, it should equal the amount of Ether in the transaction."
+        "Invalid amount, it should equal the amount of wei in the transaction."
       );
     });
 
@@ -71,19 +71,45 @@ describe("Vault2", () => {
 
   describe("burn", () => {
     it("Should revert when an invalid burn amount is provided", async () => {
-      //
+      await expect(vault2.connect(account1).burn(0)).to.be.revertedWith(
+        "Invalid amount, should be greater than 0."
+      );
     });
 
     it("Should revert when the user's balance is lower than the amount to burn", async () => {
-      //
+      const accountBalance = await vault2.balanceOf(account1.address);
+
+      expect(accountBalance).to.equal(0);
+
+      await expect(vault2.connect(account1).burn(10)).to.be.revertedWith(
+        "Invalid amount, should be equal or greater than the user's balance."
+      );
     });
 
     it("Should be able to be used by any address, even if it hasn't directly interacted with the contract before", async () => {
-      //
+      await vault2.connect(account1).mint(10, { value: 10 });
+      await vault2.connect(account1).transfer(account2.address, 10);
+
+      const accountBalance = await vault2.balanceOf(account2.address);
+      expect(accountBalance).to.eq(10);
+
+      await vault2.connect(account2).burn(10);
+
+      const newAccountBalance = await vault2.balanceOf(account2.address);
+      expect(newAccountBalance).to.eq(0);
     });
 
     it("Should burn $VAULT equivalent to _amount", async () => {
-      //
+      const initialSupply = await vault2.totalSupply();
+      expect(initialSupply).to.eq(0);
+
+      await vault2.connect(account1).mint(10, { value: 10 });
+      const intermediateSupply = await vault2.totalSupply();
+      expect(intermediateSupply).to.eq(10);
+
+      await vault2.connect(account1).burn(10);
+      const finalSupply = await vault2.totalSupply();
+      expect(finalSupply).to.eq(0);
     });
 
     it("Should send wei equivalent to _amount to msg.sender", async () => {
@@ -91,11 +117,23 @@ describe("Vault2", () => {
     });
 
     it("Should burn $VAULT from msg.sender", async () => {
-      //
+      await vault2.connect(account1).mint(10, { value: 10 });
+
+      const accountBalance = await vault2.balanceOf(account1.address);
+      expect(accountBalance).to.eq(10);
+
+      await vault2.connect(account1).burn(10);
+
+      const newAccountBalance = await vault2.balanceOf(account1.address);
+      expect(newAccountBalance).to.eq(0);
     });
 
     it("Should emit a `Burned` event with _amount as value", async () => {
-      //
+      await vault2.connect(account1).mint(10, { value: 10 });
+
+      await expect(vault2.connect(account1).burn(10))
+        .to.emit(vault2, "Burned")
+        .withArgs(10);
     });
   });
 });
