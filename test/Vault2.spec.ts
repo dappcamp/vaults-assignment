@@ -76,16 +76,6 @@ describe("Vault2", () => {
       );
     });
 
-    it("Should revert when the user's balance is lower than the amount to burn", async () => {
-      const accountBalance = await vault2.balanceOf(account1.address);
-
-      expect(accountBalance).to.equal(0);
-
-      await expect(vault2.connect(account1).burn(10)).to.be.revertedWith(
-        "Invalid amount, should be equal or greater than the user's balance."
-      );
-    });
-
     it("Should be able to be used by any address, even if it hasn't directly interacted with the contract before", async () => {
       await vault2.connect(account1).mint(10, { value: 10 });
       await vault2.connect(account1).transfer(account2.address, 10);
