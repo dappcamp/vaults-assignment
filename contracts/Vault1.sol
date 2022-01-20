@@ -12,7 +12,7 @@ contract Vault1 {
     // State variables
     mapping(address => uint) private _balances;
 
-    function deposit(uint _amount) external payable {
+    function deposit(uint _amount) external {
         _balances[msg.sender] = SafeMath.add(_amount, _balances[msg.sender]);
         emit Deposit(_amount);
     }
@@ -20,8 +20,6 @@ contract Vault1 {
     function withdraw(uint _amount) external {
         require(_amount <= _balances[msg.sender], "Cannot withdraw more than balance");
         _balances[msg.sender] = SafeMath.sub(_balances[msg.sender], _amount);
-        (bool isSentSuccessfully,) = msg.sender.call{value: _amount}("");
-        require(isSentSuccessfully, "Failed to send ether to caller");
         emit Withdraw(_amount);
     }
 }
