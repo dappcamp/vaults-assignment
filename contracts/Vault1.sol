@@ -10,9 +10,7 @@ contract Vault1 {
     mapping(address => mapping(address => uint256)) public tokenBalances;
 
     function deposit(uint256 _amount, IERC20 _token) public {
-        (bool success, uint256 newBalance) = tokenBalances[msg.sender][
-            address(_token)
-        ].tryAdd(_amount);
+        (bool success, uint256 newBalance) = tokenBalances[msg.sender][address(_token)].tryAdd(_amount);
         require(success, "Could not deposit token amount error in balance");
 
         success = _token.transfer(address(this), _amount);
@@ -28,9 +26,7 @@ contract Vault1 {
             "Insufficient balance to withdraw tokens"
         );
 
-        (bool success, uint256 newBalance) = tokenBalances[msg.sender][
-            address(_token)
-        ].trySub(_amount);
+        (bool success, uint256 newBalance) = tokenBalances[msg.sender][address(_token)].trySub(_amount);
         require(success, "Could not withdraw amount error in balance");
 
         success = _token.transferFrom(address(this), address(_token), _amount);
