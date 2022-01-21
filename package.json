@@ -9,6 +9,7 @@
     "hardhat": "^2.8.2"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.4.2"
+    "@openzeppelin/contracts": "^4.4.2",
+    "hardhat-deploy-fake-erc20": "^0.0.3-alpha"
   }
 }

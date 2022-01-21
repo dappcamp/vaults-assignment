@@ -1,4 +1,5 @@
 require("@nomiclabs/hardhat-waffle");
+// require("hardhat-deploy-fake-erc20");
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -18,4 +19,14 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  */
 module.exports = {
   solidity: "0.8.4",
+  // fakeERC20Network: {
+  //     tokens: [
+  //         {
+  //             name: "Gold",
+  //             symbol: "GLD",
+  //             defaultMintAmount: "80000000000000000000",
+  //         },
+  //     ],
+  //     defaultMintAmount: "80000000000000000000",
+  // },
 };
