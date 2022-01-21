@@ -9,15 +9,15 @@ contract Vault2 is ERC20 {
 
   constructor() ERC20("Vault", "VLT") {
     vault = msg.sender;
-    _mint(msg.sender, 42*10**18);
   }
 
-  function wrap() {
-
+  function mint() external payable {
+    _mint(msg.sender, msg.value);
   }
 
-  function burn() {
-
+  function burn(uint256 _amount) external {
+    _burn(msg.sender, _amount);
+    payable(msg.sender).transfer(_amount);
   }
     
 }
