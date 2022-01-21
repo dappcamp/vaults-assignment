@@ -113,11 +113,11 @@ contract Vault2 is EtherReceiver {// } is ERC20 {
         uint caller_balance_eth = msg.sender.balance;
         console.log("_amount: %d", _amount);
         console.log("caller_balance_eth: %d", caller_balance_eth);
-        // TODO: figure out why 'call' does not work
+
         // send submitted ETH to this contract
-        payable(address(this)).transfer(_amount);
-//        (bool sent,) = payable(address(this)).call{value : _amount}("");
-//        require(sent, "Vault failed to receive Ether");
+//        payable(address(this)).transfer(_amount);
+        (bool sent,) = payable(address(this)).call{value : _amount}("");
+        require(sent, "Vault failed to receive Ether");
 
         // mint VAULT tokens to caller in 1:1 ratio of submitted ETH
         m_vault_token.mint(msg.sender, _amount);
