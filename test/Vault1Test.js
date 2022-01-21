@@ -2,27 +2,22 @@ const {expect} = require("chai");
 const {ethers} = require("hardhat");
 const { smock } = require('@defi-wonderland/smock');
 
-// TODO: edge cases
 describe("Vault 1", () => {
 
     let m_vault_owner;
 
-    // TODO: remove when ready
-    const m_token_count = 2;
-    let m_vault_2;
-    let m_token_2;
-
     let m_vault_1;
-    let m_vaults = []
 
     // init fake tokens
     let m_token_1;
-    let m_underlying_tokens = []
 
     // init a couple of users of vault contract
     let m_client1;
     let m_client2;
     let m_clients = []
+
+    const m_client_balance_start = 100;
+    const m_arr_client_balance_start = [m_client_balance_start, m_client_balance_start];
 
     beforeEach(async () => {
         [m_vault_owner, m_client1, m_client2] = await ethers.getSigners();
@@ -34,13 +29,6 @@ describe("Vault 1", () => {
             m_token_1 = await TestToken.deploy(1);
             await m_token_1.deployed();
         }
-        {
-            const TestToken = await ethers.getContractFactory("TestToken");
-            m_token_2 = await TestToken.deploy(2);
-            await m_token_2.deployed();
-        }
-        m_underlying_tokens[0] = m_token_1;
-        m_underlying_tokens[1] = m_token_2;
 
         // init wrapped Vault of token 1
         {
@@ -48,43 +36,59 @@ describe("Vault 1", () => {
             m_vault_1 = await Vault1.deploy(m_vault_owner.address, m_token_1.address);
             await m_vault_1.deployed();
         }
-        // init wrapped Vault of token 2
-        {
-            const Vault1 = await ethers.getContractFactory("Vault1");
-            m_vault_2 = await Vault1.deploy(m_vault_owner.address, m_token_2.address);
-            await m_vault_2.deployed();
-        }
-        m_vaults[0] = m_vault_1;
-        m_vaults[1] = m_vault_2;
 
+        // init underlying token balance of user
+        for (let client_index = 0; client_index < m_clients.length; client_index++) {
+            let tx =
+                await m_token_1.connect(m_clients[client_index])
+                    .getSomeTestTokens(m_arr_client_balance_start[client_index]);
+            await tx.wait();
+
+            // verify token balance persisted
+            {
+                const realized = await m_token_1.balanceOf(m_clients[client_index].address);
+                expect(m_arr_client_balance_start[client_index].toString())
+                    .to.equal(realized.toString());
+            }
+        }
+    });
+
+    describe("deposit", function () {
+
+        it("vault not approved to take underlying", async function () {
+            // any deposit amount will be rejected
+            const client_deposit = 1;
+
+            // call: deposit (without client approving vault)
+            await expect(m_vault_1.connect(m_client1)
+                .deposit(client_deposit))
+                .to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+        });
+
+        it("client does not have sufficients funds", async function () {
+            // any deposit amount will be rejected
+            const client_deposit = m_client_balance_start + 100;
+
+            // call: deposit (without client approving vault)
+            await expect(m_vault_1.connect(m_client1)
+                .deposit(client_deposit))
+                .to.be.revertedWith("ERC20: transfer amount exceeds balance");
+        });
     });
 
     describe("deposit + withdraw", function () {
 
         it("one client(s) deposit underlying -> withdraw a portion", async function () {
-
-            const token_index = 0;
-            const underlying_token = m_underlying_tokens[token_index];
+            const underlying_token = m_token_1;
 
             const client_index = 0;
             const client = m_clients[client_index];
 
             const vault_index = 0;
-            const vault = m_vaults[vault_index];
-
-            // init a balance of token
-            const client_balance_start = 100;
-            let tx = await underlying_token.connect(client).getSomeTestTokens(client_balance_start);
-            await tx.wait();
-
-            // verify token balance persisted
-            {
-                const realized = await underlying_token.balanceOf(client.address);
-                expect(client_balance_start.toString()).to.equal(realized.toString());
-            }
+            const vault = m_vault_1;
 
             // allow vault to transact in client token for full balance
-            tx = await underlying_token.connect(client).approve(vault.address, client_balance_start);
+            tx = await underlying_token.connect(client).approve(vault.address, m_client_balance_start);
             await tx.wait();
 
             // region: deposit
@@ -100,7 +104,7 @@ describe("Vault 1", () => {
 
             // verify output - underlying token -- less of what was deposited
             {
-                const expected = client_balance_start - client_deposit;
+                const expected = m_client_balance_start - client_deposit;
                 const realized = await underlying_token.balanceOf(client.address);
                 expect(expected.toString()).to.equal(realized.toString());
             }
@@ -126,7 +130,7 @@ describe("Vault 1", () => {
                 .withArgs(client.address, client_withdraw);
 
             // verify output - underlying token balance -- add back was withdrawn
-            const client_balance_finish = client_balance_start - client_deposit + client_withdraw;
+            const client_balance_finish = m_client_balance_start - client_deposit + client_withdraw;
             {
                 const expected = client_balance_finish;
                 const realized = await underlying_token.balanceOf(client.address);
@@ -148,29 +152,12 @@ describe("Vault 1", () => {
             const vault = m_vault_1;
             const underlying_token = m_token_1;
 
-            // init a balance of token for each client
-            const arr_client_balance_start = [101, 102];
-            for (let client_index = 0; client_index < m_clients.length; client_index++) {
-                let tx =
-                    await underlying_token
-                        .connect(m_clients[client_index])
-                        .getSomeTestTokens(arr_client_balance_start[client_index]);
-
-                await tx.wait();
-            }
-
-            // verify token balance persisted
-            for (let client_index = 0; client_index < m_clients.length; client_index++) {
-                const realized = await underlying_token.balanceOf(m_clients[client_index].address);
-                expect(arr_client_balance_start[client_index].toString()).to.equal(realized.toString());
-            }
-
             // allow vault to transact in client token for full balance
             for (let client_index = 0; client_index < m_clients.length; client_index++) {
                 tx =
                     await underlying_token
                         .connect(m_clients[client_index])
-                        .approve(vault.address, arr_client_balance_start[client_index]);
+                        .approve(vault.address, m_arr_client_balance_start[client_index]);
 
                 await tx.wait();
             }
@@ -190,7 +177,7 @@ describe("Vault 1", () => {
 
             // verify output - underlying token -- less of what was deposited
             for (let client_index = 0; client_index < m_clients.length; client_index++) {
-                const expected = arr_client_balance_start[client_index] - arr_client_deposit[client_index];
+                const expected = m_arr_client_balance_start[client_index] - arr_client_deposit[client_index];
                 const realized = await underlying_token.balanceOf(m_clients[client_index].address);
                 expect(expected.toString()).to.equal(realized.toString());
             }
@@ -220,7 +207,7 @@ describe("Vault 1", () => {
             // verify output - underlying token balance -- add back was withdrawn
             for (let client_index = 0; client_index < m_clients.length; client_index++) {
                 const expected =
-                    arr_client_balance_start[client_index]
+                    m_arr_client_balance_start[client_index]
                     - arr_client_deposit[client_index]
                     + arr_client_withdraw[client_index];
                 const realized = await underlying_token.balanceOf(m_clients[client_index].address);
