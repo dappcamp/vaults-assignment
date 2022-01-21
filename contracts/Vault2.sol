@@ -56,10 +56,14 @@ receive() exists?  fallback()
     */
 
     // Function to receive Ether. msg.data must be empty
-    receive() external payable {}
+    receive() external payable {
+        console.log("In[EtherReceiver::receive]");
+    }
 
     // Fallback function is called when msg.data is not empty
-    fallback() external payable {}
+    fallback() external payable {
+        console.log("In[EtherReceiver::fallback]");
+    }
 
     function getBalance() public view returns (uint) {
         return address(this).balance;
@@ -81,7 +85,6 @@ contract Vault2 is EtherReceiver {// } is ERC20 {
     // TODO: remove comment
     constructor() {// ERC20("VAULT Token", "VAULT") {
         m_owner = msg.sender;
-        m_eth_treasury = 0;
         m_vault_token = new VaultToken();
     }
 
@@ -96,31 +99,29 @@ contract Vault2 is EtherReceiver {// } is ERC20 {
     }
 
 
-    // TODO: for mint
-    //Which method should you use?
-    //call in combination with re-entrancy guard is the recommended method to use after December 2019.
-    //
+    //TODO: for mint
     //Guard against re-entrancy by
     //
     //making all state changes before calling other contracts
     //using re-entrancy guard modifier
 
     // A payable function which should take ether and mint equal amount of VAULT tokens
-    function mintInner(uint _amount) private {
+    function mintInner(uint256 _amount) private {
         require(_amount > 0, "invalid value of amount");
         require(msg.sender != m_owner, "contract owner cannot call: mintInner");
         require(msg.sender != address(this), "contract itself cannot call: mintInner");
-
+        uint caller_balance_eth = msg.sender.balance;
+        console.log("_amount: %d", _amount);
+        console.log("caller_balance_eth: %d", caller_balance_eth);
+        // TODO: figure out why 'call' does not work
         // send submitted ETH to this contract
-        m_eth_treasury += _amount;
-        (bool sent,) = payable(address(this)).call{value : _amount}("");
-        require(sent, "Vault failed to receive Ether");
+        payable(address(this)).transfer(_amount);
+//        (bool sent,) = payable(address(this)).call{value : _amount}("");
+//        require(sent, "Vault failed to receive Ether");
 
-        //        // mint VAULT tokens to caller in 1:1 ratio of submitted ETH
-        //        _mint(msg.sender, _amount);
+        // mint VAULT tokens to caller in 1:1 ratio of submitted ETH
         m_vault_token.mint(msg.sender, _amount);
     }
-
     function mint() public payable {
         mintInner(msg.value);
     }
@@ -131,19 +132,12 @@ contract Vault2 is EtherReceiver {// } is ERC20 {
         // - valid caller address
         // - caller address has sufficient balance
 
-        // check that vault can cover request
-        require(m_eth_treasury >= _amount, "vault has insufficient funds to meet your request");
-
         // send ETH back to caller
         (bool sent,) = payable(msg.sender).call{value : _amount}("");
         require(sent, "Vault failed to send back Ether");
 
         // burn VAULT tokens of caller
         m_vault_token.burn(msg.sender, _amount);
-        //        _burn(msg.sender, _amount);
-
-        // deduct eth from treasury
-        m_eth_treasury -= _amount;
     }
 
 }
