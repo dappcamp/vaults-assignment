@@ -26,12 +26,10 @@ receive() exists?  fallback()
 
     // Function to receive Ether. msg.data must be empty
     receive() external payable {
-        console.log("In[EtherReceiver::receive]");
     }
 
     // Fallback function is called when msg.data is not empty
     fallback() external payable {
-        console.log("In[EtherReceiver::fallback]");
     }
 
     function getBalance() public view returns (uint) {
@@ -68,8 +66,8 @@ contract Vault2 is ERC20, EtherReceiver {
         require(msg.sender != m_owner, "contract owner cannot call: mintInner");
         require(msg.sender != address(this), "contract itself cannot call: mintInner");
         uint caller_balance_eth = msg.sender.balance;
-        console.log("_amount: %d", _amount);
-        console.log("caller_balance_eth: %d", caller_balance_eth);
+        //        console.log("_amount: %d", _amount);
+        //        console.log("caller_balance_eth: %d", caller_balance_eth);
 
         // send submitted ETH to this contract
         (bool sent,) = payable(address(this)).call{value : _amount}("");
