@@ -7,7 +7,7 @@ contract Vault1 is ERC20 {
     address public owner;
     mapping(address => uint) balances;
 
-    constructor() ERC20('DappCamp Token', 'DCMP'){
+    constructor() ERC20('Vault1', 'V1'){
         _mint(msg.sender, 10000);
         owner = msg.sender;
     }
