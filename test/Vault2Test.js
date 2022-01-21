@@ -1,5 +1,8 @@
 const { expect } = require("chai");
-const { ethers } = require("hardhat");
+const { ethers, waffle } = require("hardhat");
+
+const provider = waffle.provider;
+
 
 describe("Vault 2", () => {
 
@@ -12,6 +15,9 @@ describe("Vault 2", () => {
 		vault2 = await Vault2.deploy();
 
 		await vault2.deployed();
+
+		var ownerETH = await provider.getBalance(owner.address);
+		console.log('original owner eth: ', ownerETH);
 
 		
 	});
@@ -31,39 +37,36 @@ describe("Vault 2", () => {
 			
 		});
 
-		xit("Should not allow user to withdraw more than deposited", async function () {
+		it("Should send back ether when burning tokens", async function () {
 			let amount = 500;
-			console.log('coin address: ', coin1.address);
-			let totalSupply = await coin1.totalSupply();
-			console.log('coin supply: ', totalSupply);
-			let balanceOfOwner = await coin1.balanceOf(owner.address);
-			console.log('owner balance: ', balanceOfOwner);
-			await coin1.approve(vault1.address,amount);
-			await vault1.connect(owner).deposit(coin1.address,amount);
-			const ownerBalance = await vault1.balanceOf(coin1.address,owner.address);
-			await expect(
-				vault1.connect(owner).withdraw(coin1.address, amount + 1)
-			).to.be.revertedWith("Cannot withdraw more than balance");
+			// console.log('coin supply: ', totalSupply);
+			
+			ownerETH = await provider.getBalance(owner.address);
+			console.log('before mint owner eth: ', ownerETH);
+			// await vault2.approve(vault2.address,amount);
+			await vault2.connect(owner).mint(amount, {value: amount});
+			let balanceOfOwner = await vault2.balanceOf(owner.address);
+			console.log('Vault 2 test 2 - owner balance: ', balanceOfOwner);
+
+			ownerETH = await provider.getBalance(owner.address);
+			console.log('after mint owner eth: ', ownerETH);
+			
+
+			// await coin1.approve(owner.address, 1);
+			await vault2.connect(owner).burn(1);
+
+			balanceOfOwner = await vault2.balanceOf(owner.address);
+			console.log('Vault 2 test 2b - owner balance: ', balanceOfOwner);
+
+			ownerETH = await provider.getBalance(owner.address);
+			console.log('after burn owner eth: ', ownerETH);
+
+			expect(balanceOfOwner).to.equal(amount-1);
+
+			
+			
 			
 		});
-
-		xit("Should allow user to withdraw less than deposited", async function () {
-			let amount = 500;
-			console.log('coin address: ', coin1.address);
-			let totalSupply = await coin1.totalSupply();
-			console.log('coin supply: ', totalSupply);
-			let balanceOfOwner = await coin1.balanceOf(owner.address);
-			console.log('owner balance: ', balanceOfOwner);
-			await coin1.approve(vault1.address,amount);
-			await vault1.connect(owner).deposit(coin1.address,amount);
-
-			await coin1.approve(owner.address,amount - 1);
-			await vault1.connect(owner).withdraw(coin1.address, amount - 1)
-			const ownerBalance = await vault1.balanceOf(coin1.address,owner.address);
-			expect(ownerBalance).to.equal(1);
-			
-		});
-
 		
 	});
 });

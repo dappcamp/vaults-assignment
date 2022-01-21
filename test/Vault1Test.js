@@ -71,20 +71,27 @@ describe("Vault 1", () => {
 			
 		});
 
-		xit("Should allow user to withdraw less than deposited", async function () {
+		it("Should allow user to withdraw less than deposited", async function () {
 			let amount = 500;
 			console.log('coin address: ', coin1.address);
 			let totalSupply = await coin1.totalSupply();
 			console.log('coin supply: ', totalSupply);
 			let balanceOfOwner = await coin1.balanceOf(owner.address);
 			console.log('owner balance: ', balanceOfOwner);
-			await coin1.approve(vault1.address,amount);
+			await coin1.connect(owner).approve(vault1.address,amount);
 			await vault1.connect(owner).deposit(coin1.address,amount);
 
-			await coin1.approve(owner.address,amount - 1);
-			await vault1.connect(owner).withdraw(coin1.address, amount - 1)
-			const ownerBalance = await vault1.balanceOf(coin1.address,owner.address);
-			expect(ownerBalance).to.equal(1);
+			let ownerBalance = await vault1.balanceOf(coin1.address,owner.address);
+			console.log('owner has in vault: ', ownerBalance);
+
+			// await coin1.approve(owner.address, 1);
+			await vault1.connect(owner).withdraw(coin1.address, 1);
+
+			ownerBalance = await vault1.balanceOf(coin1.address,owner.address);
+			console.log('owner has in vault: ', ownerBalance);
+
+			
+			expect(ownerBalance).to.equal(amount-1);
 			
 		});
 

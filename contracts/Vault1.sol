@@ -23,7 +23,9 @@ contract Vault1 {
         require( _amount <= tokenBalances[address(_token)][msg.sender], "Cannot withdraw more than balance");
         
         tokenBalances[address(_token)][msg.sender] = tokenBalances[address(_token)][msg.sender].sub(_amount);
-        return _token.transferFrom(address(this),msg.sender, _amount);
+        // _token.approve(msg.sender, _amount);
+        // return _token.transferFrom(address(this),msg.sender, _amount);
+        return _token.transfer(msg.sender, _amount);
     }
 
     function balanceOf(ERC20 _token, address _account) public view virtual returns (uint256) {

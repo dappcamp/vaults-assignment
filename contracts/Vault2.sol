@@ -5,6 +5,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
+import "hardhat/console.sol";
+
 contract Vault2 is ERC20, ERC20Burnable {
     using SafeMath for uint256;
     mapping (address => uint256) public tokenBalances; // token => owner => balance
@@ -22,18 +24,19 @@ contract Vault2 is ERC20, ERC20Burnable {
         
         tokenBalances[msg.sender] = tokenBalances[msg.sender].add(_amount);
         this.approve(msg.sender, _amount);
-        return this.transferFrom(address(this), msg.sender, _amount); //send Vault tokens back
+        return this.transfer(msg.sender, _amount); //send Vault tokens back
 
         // _id = ++depositCount;
     }
 
     function burn(uint256 _amount) public override virtual {
+        console.log("Burn %s tokens from %s balance", _amount, tokenBalances[msg.sender]);
         require( _amount <= tokenBalances[msg.sender], "Cannot withdraw more than balance");
         bool success;
         (success,) = address(msg.sender).call{value: tokenBalances[msg.sender]}("");
         require(success, "Did not send ether");
         tokenBalances[msg.sender] = tokenBalances[msg.sender].sub(_amount);
-        this.burnFrom(msg.sender, _amount);
+        super.burn(_amount);
         
     }
 
