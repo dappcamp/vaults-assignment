@@ -5,163 +5,239 @@ const { smock } = require('@defi-wonderland/smock');
 // TODO: edge cases
 describe("Vault 1", () => {
 
-    let m_vault1_owner;
-    let m_vault1_contract;
+    let m_vault_owner;
 
-    // init a couple fake tokens
-    let m_mock_token_1;
-    let m_mock_token_2;
-    const m_mock_token_count = 2;
+    // TODO: remove when ready
+    const m_token_count = 2;
+    let m_vault_2;
+    let m_token_2;
 
-    // init a couple of clients
+    let m_vault_1;
+    let m_vaults = []
+
+    // init fake tokens
+    let m_token_1;
+    let m_underlying_tokens = []
+
+    // init a couple of users of vault contract
     let m_client1;
     let m_client2;
+    let m_clients = []
 
     beforeEach(async () => {
-        [m_vault1_owner, m_client1, m_client2] = await ethers.getSigners();
+        [m_vault_owner, m_client1, m_client2] = await ethers.getSigners();
+        m_clients = [m_client1, m_client2];
 
-        // init contract
-        const Vault1 = await ethers.getContractFactory("Vault1");
-        m_vault1_contract = await Vault1.deploy();
-        await m_vault1_contract.deployed();
+        // init mock tokens - use erc20
+        {
+            const TestToken = await ethers.getContractFactory("TestToken");
+            m_token_1 = await TestToken.deploy(1);
+            await m_token_1.deployed();
+        }
+        {
+            const TestToken = await ethers.getContractFactory("TestToken");
+            m_token_2 = await TestToken.deploy(2);
+            await m_token_2.deployed();
+        }
+        m_underlying_tokens[0] = m_token_1;
+        m_underlying_tokens[1] = m_token_2;
 
-        // init mock tokens
-        m_mock_token_1 = await smock.fake("IERC20");
-        m_mock_token_2 = await smock.fake("IERC20");
+        // init wrapped Vault of token 1
+        {
+            const Vault1 = await ethers.getContractFactory("Vault1");
+            m_vault_1 = await Vault1.deploy(m_vault_owner.address, m_token_1.address);
+            await m_vault_1.deployed();
+        }
+        // init wrapped Vault of token 2
+        {
+            const Vault1 = await ethers.getContractFactory("Vault1");
+            m_vault_2 = await Vault1.deploy(m_vault_owner.address, m_token_2.address);
+            await m_vault_2.deployed();
+        }
+        m_vaults[0] = m_vault_1;
+        m_vaults[1] = m_vault_2;
 
     });
 
-    describe("deposit", function () {
+    describe("deposit + withdraw", function () {
 
-        it("1 client(s) - 1 token(s)", async function () {
+        it("one client(s) deposit underlying -> withdraw a portion", async function () {
 
-            // when passed to a smart contract function
-            const mock_token_1_arg = m_mock_token_1.address;
+            const token_index = 0;
+            const underlying_token = m_underlying_tokens[token_index];
+
+            const client_index = 0;
+            const client = m_clients[client_index];
+
+            const vault_index = 0;
+            const vault = m_vaults[vault_index];
 
             // init a balance of token
             const client_balance_start = 100;
+            let tx = await underlying_token.connect(client).getSomeTestTokens(client_balance_start);
+            await tx.wait();
+
+            // verify token balance persisted
+            {
+                const realized = await underlying_token.balanceOf(client.address);
+                expect(client_balance_start.toString()).to.equal(realized.toString());
+            }
+
+            // allow vault to transact in client token for full balance
+            tx = await underlying_token.connect(client).approve(vault.address, client_balance_start);
+            await tx.wait();
+
+            // region: deposit
 
             // deposit half of that
             const client_deposit = 50;
 
-            // prime mock
-            m_mock_token_1.balanceOf.whenCalledWith(m_client1.address).returns(client_balance_start)
-            // expect(my_fake_token.transferFrom).to.have.been.called;
-            // expect(my_fake_token.transferFrom).to.have.been.calledWith(client, g_vault1_contract.address, client_deposit);
-            // my_fake_token.transferFrom.whenCalledWith(client, g_vault1_contract.address, client_deposit)
+            // call: deposit (call from client)
+            await expect(vault.connect(client)
+                .deposit(client_deposit))
+                .to.emit(vault, "Deposit")
+                .withArgs(client.address, client_deposit);
 
-            // call: deposit
+            // verify output - underlying token -- less of what was deposited
             {
-                // call from client
+                const expected = client_balance_start - client_deposit;
+                const realized = await underlying_token.balanceOf(client.address);
+                expect(expected.toString()).to.equal(realized.toString());
+            }
+
+            // verify output - wrapped token -- for the amount deposited
+            {
+                const expected = client_deposit;
+                const realized = await vault.balanceOf(client.address);
+                expect(expected.toString()).to.equal(realized.toString());
+            }
+
+            // endregion
+
+            // region: withdraw
+
+            // withdraw half of what was deposited
+            const client_withdraw = 25;
+
+            // call: withdraw
+            await expect(vault.connect(client)
+                .withdraw(client_withdraw))
+                .to.emit(vault, "Withdraw")
+                .withArgs(client.address, client_withdraw);
+
+            // verify output - underlying token balance -- add back was withdrawn
+            const client_balance_finish = client_balance_start - client_deposit + client_withdraw;
+            {
+                const expected = client_balance_finish;
+                const realized = await underlying_token.balanceOf(client.address);
+                expect(expected.toString()).to.equal(realized.toString());
+            }
+
+            // verify output - wrapped token -- less what was just withdrawn
+            {
+                const expected = client_deposit - client_withdraw;
+                const realized = await vault.balanceOf(client.address);
+                expect(expected.toString()).to.equal(realized.toString());
+            }
+
+            // endregion
+        });
+
+        it("many client(s) deposit underlying -> withdraw a portion", async function () {
+
+            const vault = m_vault_1;
+            const underlying_token = m_token_1;
+
+            // init a balance of token for each client
+            const arr_client_balance_start = [101, 102];
+            for (let client_index = 0; client_index < m_clients.length; client_index++) {
                 let tx =
-                    await m_vault1_contract.connect(m_client1)
-                        .deposit(client_deposit, mock_token_1_arg);
+                    await underlying_token
+                        .connect(m_clients[client_index])
+                        .getSomeTestTokens(arr_client_balance_start[client_index]);
 
-                // give time for change to persist to block chain
-                await tx.wait();
-
-                // verify output
-                // deposit success -> contract has correct amount in escrow
-                const realized_client_deposit =
-                    await m_vault1_contract.connect(m_client1)
-                        .getDepositedAmount(mock_token_1_arg);
-
-                expect(client_deposit).to.equal(realized_client_deposit);
-            }
-
-        });
-
-        it("1 client(s) - 2 token(s)", async function () {
-
-            // single client
-            const client = m_client1;
-
-            // package token elements into an arry
-            const tokens = [m_mock_token_1, m_mock_token_2]
-            const token_args = [m_mock_token_1.address, m_mock_token_2.address];
-            const token_beginning_balances = [101, 102]
-
-            // deposit amounts
-            const token_deposit_amounts = [50, 51]
-
-
-            // prime mock(s)
-            for(let token_index = 0; token_index < m_mock_token_count; token_index++) {
-                tokens[token_index].balanceOf.whenCalledWith(client.address)
-                    .returns(token_beginning_balances[token_index]);
-            }
-
-            // call: deposit
-            for (let token_index = 0; token_index < m_mock_token_count; token_index++) {
-
-                // call from client
-                let tx =
-                    await m_vault1_contract.connect(client)
-                        .deposit(token_deposit_amounts[token_index], token_args[token_index]);
-
-                // give time for change to persist to block chain
                 await tx.wait();
             }
-            // verify output
-            for (let token_index = 0; token_index < m_mock_token_count; token_index++) {
-                // deposit success -> contract has correct amount in escrow
-                const realized_client_deposit =
-                    await m_vault1_contract.connect(client).getDepositedAmount(token_args[token_index]);
 
-                expect(token_deposit_amounts[token_index]).to.equal(realized_client_deposit);
+            // verify token balance persisted
+            for (let client_index = 0; client_index < m_clients.length; client_index++) {
+                const realized = await underlying_token.balanceOf(m_clients[client_index].address);
+                expect(arr_client_balance_start[client_index].toString()).to.equal(realized.toString());
             }
 
+            // allow vault to transact in client token for full balance
+            for (let client_index = 0; client_index < m_clients.length; client_index++) {
+                tx =
+                    await underlying_token
+                        .connect(m_clients[client_index])
+                        .approve(vault.address, arr_client_balance_start[client_index]);
+
+                await tx.wait();
+            }
+
+            // region: deposit
+
+            // deposit about half of that
+            const arr_client_deposit = [51, 52];
+
+            // call: deposit (call from client)
+            for (let client_index = 0; client_index < m_clients.length; client_index++) {
+                await expect(vault.connect(m_clients[client_index])
+                    .deposit(arr_client_deposit[client_index]))
+                    .to.emit(vault, "Deposit")
+                    .withArgs(m_clients[client_index].address, arr_client_deposit[client_index]);
+            }
+
+            // verify output - underlying token -- less of what was deposited
+            for (let client_index = 0; client_index < m_clients.length; client_index++) {
+                const expected = arr_client_balance_start[client_index] - arr_client_deposit[client_index];
+                const realized = await underlying_token.balanceOf(m_clients[client_index].address);
+                expect(expected.toString()).to.equal(realized.toString());
+            }
+
+            // verify output - wrapped token -- for the amount deposited
+            for (let client_index = 0; client_index < m_clients.length; client_index++) {
+                const expected = arr_client_deposit[client_index];
+                const realized = await vault.balanceOf(m_clients[client_index].address);
+                expect(expected.toString()).to.equal(realized.toString());
+            }
+
+            // endregion
+
+            // region: withdraw
+
+            // withdraw a subset of what was deposited
+            const arr_client_withdraw = [21, 22];
+
+            // call: withdraw
+            for (let client_index = 0; client_index < m_clients.length; client_index++) {
+                await expect(vault.connect(m_clients[client_index])
+                    .withdraw(arr_client_withdraw[client_index]))
+                    .to.emit(vault, "Withdraw")
+                    .withArgs(m_clients[client_index].address, arr_client_withdraw[client_index]);
+            }
+
+            // verify output - underlying token balance -- add back was withdrawn
+            for (let client_index = 0; client_index < m_clients.length; client_index++) {
+                const expected =
+                    arr_client_balance_start[client_index]
+                    - arr_client_deposit[client_index]
+                    + arr_client_withdraw[client_index];
+                const realized = await underlying_token.balanceOf(m_clients[client_index].address);
+                expect(expected.toString()).to.equal(realized.toString());
+            }
+
+            // verify output - wrapped token -- less what was just withdrawn
+            for (let client_index = 0; client_index < m_clients.length; client_index++) {
+                const expected = arr_client_deposit[client_index] - arr_client_withdraw[client_index];
+                const realized = await vault.balanceOf(m_clients[client_index].address);
+                expect(expected.toString()).to.equal(realized.toString());
+            }
+
+            // endregion
         });
 
-        it("2 client(s) - 2 token(s)", async function () {
-
-            // package clients
-            const clients = [m_client1, m_client2];
-
-            // package token elements into an arry
-            const tokens = [m_mock_token_1, m_mock_token_2];
-            const token_args = [m_mock_token_1.address, m_mock_token_2.address];
-            const token_beginning_balances = [[101, 102], [103, 104]]
-            // deposit amounts - all unique but resultant balance will be 100
-            const token_deposit_amounts = [[1, 2], [3, 4]]
-
-            // prime mock(s)
-            for(let client_index = 0; client_index < clients.length; client_index++) {
-                for(let token_index = 0; token_index < m_mock_token_count; token_index++) {
-                    tokens[token_index].balanceOf
-                        .whenCalledWith(clients[client_index].address)
-                        .returns(token_beginning_balances[token_index][client_index]);
-                }
-            }
-            // call: deposit
-            for(let client_index = 0; client_index < clients.length; client_index++) {
-                for (let token_index = 0; token_index < m_mock_token_count; token_index++) {
-
-                    // call from client
-                    let tx =
-                        await m_vault1_contract
-                            .connect(clients[client_index])
-                            .deposit(token_deposit_amounts[token_index][client_index], token_args[token_index]);
-
-                    // give time for change to persist to block chain
-                    await tx.wait();
-                }
-            }
-
-            // verify output
-            for(let client_index = 0; client_index < clients.length; client_index++) {
-                for (let token_index = 0; token_index < m_mock_token_count; token_index++) {
-                    // deposit success -> contract has correct amount in escrow
-                    const realized_client_deposit =
-                        await m_vault1_contract.connect(clients[client_index])
-                            .getDepositedAmount(token_args[token_index]);
-
-                    expect(token_deposit_amounts[token_index][client_index]).to.equal(realized_client_deposit);
-                }
-            }
-
-
-        });
     });
 });
+
 
