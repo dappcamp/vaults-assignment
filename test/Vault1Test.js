@@ -2,12 +2,24 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("Vault 1", () => {
-	beforeEach(async () => {
-		Vault1 = await ethers.getContractFactory("Vault1");
-		[owner] = await ethers.getSigners();
+  let owner;
+  let account1;
+  let startingBalance;
 
-		vault1 = await Vault1.deploy();
+  beforeEach(async () => {
+    Vault1 = await ethers.getContractFactory("Vault1");
+    [owner] = await ethers.getSigners();
 
-		await vault1.deployed();
-	});
+    vault1 = await Vault1.deploy();
+
+    await vault1.deployed();
+  });
+
+  describe("deposit", function () {
+    it("it take in the deposit amount", async function () {
+      await expect(
+        petPark.connect(account1).deposit(address, startingBalance)
+      ).to.be.revertedWith("Deposit not successful!");
+    });
+  });
 });
