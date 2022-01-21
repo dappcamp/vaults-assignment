@@ -22,7 +22,6 @@ export interface Vault1Interface extends utils.Interface {
   functions: {
     "balances(address)": FunctionFragment;
     "deposit(uint256)": FunctionFragment;
-    "tokenContract()": FunctionFragment;
     "withdraw(uint256)": FunctionFragment;
   };
 
@@ -32,20 +31,12 @@ export interface Vault1Interface extends utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenContract",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "withdraw",
     values: [BigNumberish]
   ): string;
 
   decodeFunctionResult(functionFragment: "balances", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenContract",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
@@ -100,8 +91,6 @@ export interface Vault1 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    tokenContract(overrides?: CallOverrides): Promise<[string]>;
-
     withdraw(
       _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -115,8 +104,6 @@ export interface Vault1 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  tokenContract(overrides?: CallOverrides): Promise<string>;
-
   withdraw(
     _amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -126,8 +113,6 @@ export interface Vault1 extends BaseContract {
     balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     deposit(_amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    tokenContract(overrides?: CallOverrides): Promise<string>;
 
     withdraw(_amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
   };
@@ -148,8 +133,6 @@ export interface Vault1 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    tokenContract(overrides?: CallOverrides): Promise<BigNumber>;
-
     withdraw(
       _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -166,8 +149,6 @@ export interface Vault1 extends BaseContract {
       _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    tokenContract(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     withdraw(
       _amount: BigNumberish,

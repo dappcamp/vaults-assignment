@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface DeployedERC20 is IERC20 {
   function transfer(address recipient, uint256 amount) external override returns (bool);
@@ -15,7 +15,7 @@ contract Vault1 {
   event Deposited(uint256 _amount);
   event Withdrawn(uint256 _amount);
 
-  DeployedERC20 public tokenContract;
+  DeployedERC20 private tokenContract;
 
   mapping (address => uint256) public balances;
 

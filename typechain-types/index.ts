@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { ERC20 } from "./ERC20";
+export type { ERC20Wrapper } from "./ERC20Wrapper";
 export type { IERC20Metadata } from "./IERC20Metadata";
 export type { IERC20 } from "./IERC20";
 export type { ERC20Mock } from "./ERC20Mock";
@@ -10,6 +11,7 @@ export type { Vault1 } from "./Vault1";
 export type { Vault2 } from "./Vault2";
 
 export { ERC20__factory } from "./factories/ERC20__factory";
+export { ERC20Wrapper__factory } from "./factories/ERC20Wrapper__factory";
 export { IERC20Metadata__factory } from "./factories/IERC20Metadata__factory";
 export { IERC20__factory } from "./factories/IERC20__factory";
 export { ERC20Mock__factory } from "./factories/ERC20Mock__factory";
