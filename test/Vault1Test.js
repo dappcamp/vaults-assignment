@@ -71,7 +71,7 @@ describe("Vault 1", () => {
 			
 		});
 
-		it("Should allow user to withdraw less than deposited", async function () {
+		xit("Should allow user to withdraw less than deposited", async function () {
 			let amount = 500;
 			console.log('coin address: ', coin1.address);
 			let totalSupply = await coin1.totalSupply();
