@@ -67,6 +67,9 @@ describe("Vault2", () => {
     });
   });
 
+  /**
+   * @description note that "not having enough balance to burn" is already tested by ERC20
+   */
   describe("burn", () => {
     it("Should revert when an invalid burn amount is provided", async () => {
       await expect(vault2.connect(account1).burn(0)).to.be.revertedWith("Invalid amount, should be greater than 0.");
