@@ -138,7 +138,5 @@ describe("Vault2", () => {
 
       await expect(vault2.connect(account1).burn(10)).to.emit(vault2, "Burned").withArgs(10);
     });
-
-    // @todo (lucas): add test for not emitting `Burned` if failed to send Ether
   });
 });

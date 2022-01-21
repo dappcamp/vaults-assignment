@@ -1,14 +1,18 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.4;
+
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
+/**
+  * @title Mint and burn vault
+  */
 contract Vault2 is ERC20 {
   event Minted(uint256 _amount);
   event Burned(uint256 _amount);
 
   constructor () ERC20("Vault Wrapper", "VAULT") {}
 
-  function mint(uint256 _amount) payable public {
+  function mint(uint256 _amount) payable external {
     require(_amount > 0, "Invalid amount, should be greater than 0.");
     require(msg.value == _amount, "Invalid amount, it should equal the amount of wei in the transaction.");
 
@@ -17,7 +21,7 @@ contract Vault2 is ERC20 {
     emit Minted(_amount);
   }
 
-  function burn(uint256 _amount) public {
+  function burn(uint256 _amount) external {
     require(_amount > 0, "Invalid amount, should be greater than 0.");
 
     ERC20._burn(msg.sender, _amount);

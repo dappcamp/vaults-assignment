@@ -25,6 +25,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
+      name: "ERC20Mock",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20Mock__factory>;
+    getContractFactory(
+      name: "DeployedERC20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DeployedERC20__factory>;
+    getContractFactory(
       name: "Vault1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Vault1__factory>;
@@ -48,6 +56,16 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
+    getContractAt(
+      name: "ERC20Mock",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20Mock>;
+    getContractAt(
+      name: "DeployedERC20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DeployedERC20>;
     getContractAt(
       name: "Vault1",
       address: string,

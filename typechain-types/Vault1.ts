@@ -13,31 +13,57 @@ import {
   Signer,
   utils,
 } from "ethers";
-import { FunctionFragment, Result } from "@ethersproject/abi";
+import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export interface Vault1Interface extends utils.Interface {
   contractName: "Vault1";
   functions: {
+    "balances(address)": FunctionFragment;
     "deposit(uint256)": FunctionFragment;
-    "deposits(string,address)": FunctionFragment;
+    "tokenContract()": FunctionFragment;
+    "withdraw(uint256)": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "balances", values: [string]): string;
   encodeFunctionData(
     functionFragment: "deposit",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "deposits",
-    values: [string, string]
+    functionFragment: "tokenContract",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdraw",
+    values: [BigNumberish]
   ): string;
 
+  decodeFunctionResult(functionFragment: "balances", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "deposits", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
-  events: {};
+  events: {
+    "Deposited(uint256)": EventFragment;
+    "Withdrawn(uint256)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "Deposited"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Withdrawn"): EventFragment;
 }
+
+export type DepositedEvent = TypedEvent<[BigNumber], { _amount: BigNumber }>;
+
+export type DepositedEventFilter = TypedEventFilter<DepositedEvent>;
+
+export type WithdrawnEvent = TypedEvent<[BigNumber], { _amount: BigNumber }>;
+
+export type WithdrawnEventFilter = TypedEventFilter<WithdrawnEvent>;
 
 export interface Vault1 extends BaseContract {
   contractName: "Vault1";
@@ -67,64 +93,85 @@ export interface Vault1 extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    balances(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
     deposit(
       _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    deposits(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    tokenContract(overrides?: CallOverrides): Promise<[string]>;
+
+    withdraw(
+      _amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
+
+  balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   deposit(
     _amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  deposits(
-    arg0: string,
-    arg1: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  tokenContract(overrides?: CallOverrides): Promise<string>;
+
+  withdraw(
+    _amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
+    balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     deposit(_amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
-    deposits(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    tokenContract(overrides?: CallOverrides): Promise<string>;
+
+    withdraw(_amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
   };
 
-  filters: {};
+  filters: {
+    "Deposited(uint256)"(_amount?: null): DepositedEventFilter;
+    Deposited(_amount?: null): DepositedEventFilter;
+
+    "Withdrawn(uint256)"(_amount?: null): WithdrawnEventFilter;
+    Withdrawn(_amount?: null): WithdrawnEventFilter;
+  };
 
   estimateGas: {
+    balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     deposit(
       _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    deposits(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
+    tokenContract(overrides?: CallOverrides): Promise<BigNumber>;
+
+    withdraw(
+      _amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    balances(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     deposit(
       _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    deposits(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
+    tokenContract(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    withdraw(
+      _amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
