@@ -4,51 +4,46 @@ pragma solidity ^0.8.4;
 import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Wrapper.sol";
 
 // Develop a vault where users can deposit and withdraw any ERC20 token
-contract Vault1 {
+contract Vault1 is ERC20Wrapper {
 
-    // addr (user) => addr (token) => user amt in escrow
-    mapping(address => mapping(address => uint256)) private m_token_to_depositor_to_balance;
+    address m_owner;
 
-    // Should take in deposit amount.
-    // Assume that the contract is pre-approved to transfer that amount
-    function deposit(uint256 _amount, IERC20 _token) public payable {
-
-        // require deposit not in excess of users balance
-        uint caller_balance = _token.balanceOf(msg.sender);
-        console.log("caller_balance: %d", caller_balance);
-        require(_token.balanceOf(msg.sender) >= _amount,
-            "insufficient funds for specified deposit amount");
-
-        // submit to contract
-        _token.transferFrom(msg.sender, address(this), _amount);
-
-        // update local balance for m_user_to_token_balance
-        m_token_to_depositor_to_balance[address(_token)][msg.sender] += _amount;
-
-        // TODO: emit event?
+    // wraps a single erc20 token type
+    constructor(address _owner, IERC20 _underlying) ERC20Wrapper(_underlying) ERC20("Vault Tokens", "VALT") {
+        m_owner = _owner;
     }
 
-    function getDepositedAmount(IERC20 _token) external view returns (uint256){
-        return m_token_to_depositor_to_balance[address(_token)][msg.sender];
+    // region: events
+
+    event Deposit(address caller, uint amount);
+    event Withdraw(address caller, uint amount);
+
+    // endregion
+
+    function deposit(uint256 _amount) public {
+
+        // call erc20 wrapper
+        // -> deposit underlying
+        // -> mint wrapped token back to user
+        depositFor(msg.sender, _amount);
+
+        // emit event
+        emit Deposit(msg.sender, _amount);
     }
 
     // allow users to withdraw amount lesser than or equal to what they have deposited
-    function withdraw(uint256 _amount, IERC20 _token) public {
-        // require user exists and has a balance of this token
-        require(m_token_to_depositor_to_balance[address(_token)][msg.sender] > 0, "user/token lookup not found");
+    function withdraw(uint256 _amount) public {
 
-        // get that token balance from storage
-        uint token_balance = m_token_to_depositor_to_balance[address(_token)][msg.sender];
-        require(token_balance >= _amount, "insufficient funds for withdrawal request");
+        // call erc20 wrapper
+        // -> user burns wrapped tokens
+        // -> withdraw same number of underlying tokens
+        withdrawTo(msg.sender, _amount);
 
-        // TODO: emit an event?
-
-        // transfer from this contract to the caller
-        _token.transferFrom(address(this), msg.sender, _amount);
-
-        // update token balance in local storage
-        m_token_to_depositor_to_balance[address(_token)][msg.sender] -= _amount;
+        // emit event
+        emit Withdraw(msg.sender, _amount);
     }
+
 }
