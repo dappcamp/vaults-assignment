@@ -37,7 +37,6 @@ describe("Vault1", () => {
     Token = await ethers.getContractFactory("ERC20Mock");
 
     accounts = await ethers.getSigners();
-    [owner] = accounts;
     [account1] = accounts;
 
     token = (await Token.deploy("Random", "RAND", ethers.Wallet.createRandom().address, 0)) as ERC20MockType;
