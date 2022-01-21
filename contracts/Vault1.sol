@@ -16,7 +16,7 @@ contract Vault1 {
         require(success, "Could not deposit token amount error in balance");
 
         success = _token.transfer(address(this), _amount);
-        require(success, "Could transfer the token");
+        require(success, "Could not transfer the token");
 
         tokenBalances[msg.sender][address(_token)] = newBalance;
     }
