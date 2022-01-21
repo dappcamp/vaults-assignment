@@ -22,6 +22,9 @@ contract Vault2 is ERC20 {
 
     ERC20._burn(msg.sender, _amount);
 
+    (bool sent,) = msg.sender.call{value: _amount}("");
+    require(sent, "Failed to send Ether");
+
     emit Burned(_amount);
   }
 }

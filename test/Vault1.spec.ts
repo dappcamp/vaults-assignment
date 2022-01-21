@@ -22,22 +22,11 @@ describe("Vault1", () => {
     await vault1.deployed();
   });
 
-  // deposit: invalid tokens, invalid amounts, token overflow
-  // 1 account, many tokens, many amounts
-  //
-
   describe("deposit", () => {
     it("Should revert when an invalid deposit amount is provided", async () => {
       await expect(vault1.connect(account1).deposit(0)).to.be.revertedWith(
         "Invalid deposit amount, must be greater than 0"
       );
-
-      // @todo (lucas): check how to test that _amount is an unsigned integer
-      // await expect(vault1.connect(account1).deposit(-1)).to.throw();
-    });
-
-    it("Should revert when an invalid deposit amount is provided", async () => {
-      //
     });
   });
 });

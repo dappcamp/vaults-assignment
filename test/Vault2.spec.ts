@@ -1,8 +1,10 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { Contract, ContractFactory } from "ethers";
+import { ContractFactory } from "ethers";
 import { ethers } from "hardhat";
+
 import { Vault2 as Vault2Type } from "../typechain-types/Vault2";
+import { getGasWei } from "./helpers.spec";
 
 describe("Vault2", () => {
   let Vault2: ContractFactory;
@@ -25,15 +27,11 @@ describe("Vault2", () => {
 
   describe("mint", () => {
     it("Should revert when an invalid mint amount is provided", async () => {
-      await expect(vault2.connect(account1).mint(0)).to.be.revertedWith(
-        "Invalid amount, should be greater than 0."
-      );
+      await expect(vault2.connect(account1).mint(0)).to.be.revertedWith("Invalid amount, should be greater than 0.");
     });
 
     it("Should revert when the deposit amount is different to msg.value", async () => {
-      await expect(
-        vault2.connect(account1).mint(10, { value: 1 })
-      ).to.be.revertedWith(
+      await expect(vault2.connect(account1).mint(10, { value: 1 })).to.be.revertedWith(
         "Invalid amount, it should equal the amount of wei in the transaction."
       );
     });
@@ -71,9 +69,7 @@ describe("Vault2", () => {
 
   describe("burn", () => {
     it("Should revert when an invalid burn amount is provided", async () => {
-      await expect(vault2.connect(account1).burn(0)).to.be.revertedWith(
-        "Invalid amount, should be greater than 0."
-      );
+      await expect(vault2.connect(account1).burn(0)).to.be.revertedWith("Invalid amount, should be greater than 0.");
     });
 
     it("Should be able to be used by any address, even if it hasn't directly interacted with the contract before", async () => {
@@ -102,10 +98,6 @@ describe("Vault2", () => {
       expect(finalSupply).to.eq(0);
     });
 
-    it("Should send wei equivalent to _amount to msg.sender", async () => {
-      //
-    });
-
     it("Should burn $VAULT from msg.sender", async () => {
       await vault2.connect(account1).mint(10, { value: 10 });
 
@@ -118,12 +110,32 @@ describe("Vault2", () => {
       expect(newAccountBalance).to.eq(0);
     });
 
+    it("Should send wei equivalent to _amount to msg.sender", async () => {
+      const MINT_AMOUNT = 10;
+      const BURN_AMOUNT = MINT_AMOUNT;
+      const initialBalance = await account1.getBalance();
+
+      const mintTxReceipt = await (await vault2.connect(account1).mint(MINT_AMOUNT, { value: MINT_AMOUNT })).wait();
+      const mintGasPrice = getGasWei(mintTxReceipt);
+      const mintBalance = await account1.getBalance();
+
+      // Account balance after minting === initial balance - gas - MINT_AMOUNT
+      expect(initialBalance.sub(mintGasPrice).sub(MINT_AMOUNT)).to.eq(mintBalance);
+
+      const burnTxReceipt = await (await vault2.connect(account1).burn(BURN_AMOUNT)).wait();
+      const burnGasPrice = getGasWei(burnTxReceipt);
+      const burnBalance = await account1.getBalance();
+
+      // Account balance after burning === mint balance - gas + BURN_AMOUNT
+      expect(mintBalance.sub(burnGasPrice).add(BURN_AMOUNT)).to.eq(burnBalance);
+    });
+
     it("Should emit a `Burned` event with _amount as value", async () => {
       await vault2.connect(account1).mint(10, { value: 10 });
 
-      await expect(vault2.connect(account1).burn(10))
-        .to.emit(vault2, "Burned")
-        .withArgs(10);
+      await expect(vault2.connect(account1).burn(10)).to.emit(vault2, "Burned").withArgs(10);
     });
+
+    // @todo (lucas): add test for not emitting `Burned` if failed to send Ether
   });
 });
