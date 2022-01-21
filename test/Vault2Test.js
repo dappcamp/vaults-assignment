@@ -20,6 +20,30 @@ describe("Vault 2", () => {
         await m_vault2_contract.connect(m_vault2_owner.address).deployed();
     });
 
+    describe("mint", function () {
+
+        it("[edge_case] mint 0 ETH", async function () {
+
+            await expect(m_vault2_contract
+                .connect(m_client1)
+                .mint({value: 0}))
+                .to.be.revertedWith("invalid value of amount");
+        });
+
+    });
+
+    describe("burn", function () {
+
+        it("[edge_case] burn 0 ETH", async function () {
+
+            await expect(m_vault2_contract
+                .connect(m_client1)
+                .burn(0))
+                .to.be.revertedWith("invalid value of amount");
+        });
+
+    });
+
     describe("mint and burn", function () {
 
         it("one client(s) mint one token(s) -> burn all", async function () {
@@ -178,7 +202,7 @@ describe("Vault 2", () => {
             }
 
             // region: verify output (for all users)
-            
+
             for (let caller_index = 0; caller_index < arry_callers.length; caller_index++) {
 
                 const caller = arry_callers[caller_index];

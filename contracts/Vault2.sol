@@ -72,7 +72,7 @@ contract Vault2 is ERC20, EtherReceiver {
         require(_amount > 0, "invalid value of amount");
         require(msg.sender != m_owner, "contract owner cannot call: mintInner");
         require(msg.sender != address(this), "contract itself cannot call: mintInner");
-
+        require(msg.sender.balance >= _amount, "caller has insufficient ETH");
         // send submitted ETH to this contract
         (bool sent,) = payable(address(this)).call{value : _amount}("");
         require(sent, "Vault failed to receive Ether");
@@ -89,6 +89,8 @@ contract Vault2 is ERC20, EtherReceiver {
 
     // Should allow users to burn their tokens and get equal amount of ether back.
     function burn(uint256 _amount) public {
+        require(_amount > 0, "invalid value of amount");
+
         // ERC20 does relevant checks for:
         // - valid caller address
         // - caller address has sufficient balance
