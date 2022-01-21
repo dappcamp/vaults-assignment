@@ -28,9 +28,6 @@ contract Vault1 {
         m_token_to_depositor_to_balance[address(_token)][msg.sender] += _amount;
 
         // TODO: emit event?
-
-        // return bool to indicate success
-        return true;
     }
 
     function getDepositedAmount(IERC20 _token) external view returns (uint256){
