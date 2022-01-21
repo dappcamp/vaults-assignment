@@ -55,7 +55,7 @@ describe("Vault 1", () => {
 
     describe("deposit", function () {
 
-        it("vault not approved to take underlying", async function () {
+        it("[edge_case] vault not approved to take underlying", async function () {
             // any deposit amount will be rejected
             const client_deposit = 1;
 
@@ -65,7 +65,7 @@ describe("Vault 1", () => {
                 .to.be.revertedWith("ERC20: transfer amount exceeds allowance");
         });
 
-        it("client does not have sufficients funds", async function () {
+        it("[edge_case] client does not have sufficients funds", async function () {
             // any deposit amount will be rejected
             const client_deposit = m_client_balance_start + 100;
 
@@ -222,6 +222,38 @@ describe("Vault 1", () => {
             }
 
             // endregion
+        });
+
+    });
+
+    describe("withdraw", function () {
+
+        it("[edge_case] withdrawer never deposited underlying", async function () {
+
+            // client has not yet deposited underlying
+            // -> any withdraw amount will be rejected
+            const client_withdraw = 1;
+
+            // call: deposit (without client depositing)
+            await expect(m_vault_1.connect(m_client1)
+                .withdraw(client_withdraw))
+                .to.be.revertedWith("ERC20: burn amount exceeds balance");
+        });
+
+        it("[edge_case] withdraw more than deposited", async function () {
+
+            const client_deposit = 100;
+            await m_token_1.connect(m_client1).approve(m_vault_1.address, client_deposit);
+            await m_vault_1.connect(m_client1).deposit(client_deposit);
+
+            // client has not yet deposited underlying
+            // -> any withdraw amount will be rejected
+            const client_withdraw = client_deposit + 1;
+
+            // call: deposit (without client depositing)
+            await expect(m_vault_1.connect(m_client1)
+                .withdraw(client_withdraw))
+                .to.be.revertedWith("ERC20: burn amount exceeds balance");
         });
 
     });
