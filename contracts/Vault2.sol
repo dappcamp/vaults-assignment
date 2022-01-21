@@ -44,30 +44,34 @@ contract Vault2 is ERC20, EtherReceiver {
 
     address m_owner;
 
-    constructor() ERC20("VAULT Token", "VAULT") {
+    constructor() ERC20("VAULT Token", "VAULT2") {
         m_owner = msg.sender;
     }
 
-    function getBalanceEth() external view returns (uint) {
+    // region: getters
+    function getBalanceEth() external view returns (uint256) {
         return getBalance();
     }
 
-    function getBalanceVaultForUser(address _user) external view returns (uint) {
+    function getBalanceVaultForUser(address _user) external view returns (uint256) {
         return balanceOf(_user);
     }
 
-    function getBalanceVault() external view returns (uint) {
+    function getBalanceVault() external view returns (uint256) {
         return balanceOf(msg.sender);
     }
+    // endregion
+
+    // region: events
+    event Mint(address mintee, uint256 amount);
+    event Burn(address burnee, uint256 amount);
+    // endregion
 
     // A payable function which should take ether and mint equal amount of VAULT tokens
     function mintInner(uint256 _amount) private {
         require(_amount > 0, "invalid value of amount");
         require(msg.sender != m_owner, "contract owner cannot call: mintInner");
         require(msg.sender != address(this), "contract itself cannot call: mintInner");
-        uint caller_balance_eth = msg.sender.balance;
-        //        console.log("_amount: %d", _amount);
-        //        console.log("caller_balance_eth: %d", caller_balance_eth);
 
         // send submitted ETH to this contract
         (bool sent,) = payable(address(this)).call{value : _amount}("");
@@ -75,13 +79,16 @@ contract Vault2 is ERC20, EtherReceiver {
 
         // mint VAULT tokens to caller in 1:1 ratio of submitted ETH
         _mint(msg.sender, _amount);
+
+        // emit event
+        emit Mint(msg.sender, _amount);
     }
     function mint() public payable {
         mintInner(msg.value);
     }
 
     // Should allow users to burn their tokens and get equal amount of ether back.
-    function burn(uint _amount) public {
+    function burn(uint256 _amount) public {
         // ERC20 does relevant checks for:
         // - valid caller address
         // - caller address has sufficient balance
@@ -92,6 +99,9 @@ contract Vault2 is ERC20, EtherReceiver {
 
         // burn VAULT tokens of caller
         _burn(msg.sender, _amount);
+
+        // emit event
+        emit Burn(msg.sender, _amount);
     }
 
 }

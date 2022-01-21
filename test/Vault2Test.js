@@ -38,8 +38,10 @@ describe("Vault 2", () => {
             const post_burn_vault_treasury = 0;
 
             // call: mint
-            let tx = await m_vault2_contract.connect(caller).mint({value: deposited_eth});
-            await tx.wait();
+            await expect(m_vault2_contract.connect(caller).mint({value: deposited_eth}))
+                .to.emit(m_vault2_contract, "Mint")
+                .withArgs(caller.address, deposited_eth);
+
 
             // verify output - user gets VAULT token(s)
             {
@@ -58,8 +60,11 @@ describe("Vault 2", () => {
             }
 
             // call: burn
-            tx = await m_vault2_contract.connect(caller).burn(user_burns_eth);
-            await tx.wait();
+            await expect(m_vault2_contract.connect(caller)
+                .burn(user_burns_eth))
+                .to.emit(m_vault2_contract, "Burn")
+                .withArgs(caller.address, user_burns_eth);
+
 
             // verify output - user burns only VAULT
             {
@@ -96,8 +101,10 @@ describe("Vault 2", () => {
             const post_burn_vault_treasury = deposited_eth - user_burns_eth;
 
             // call: mint
-            let tx = await m_vault2_contract.connect(caller).mint({value: deposited_eth});
-            await tx.wait();
+            await expect(m_vault2_contract.connect(caller).mint({value: deposited_eth}))
+                .to.emit(m_vault2_contract, "Mint")
+                .withArgs(caller.address, deposited_eth);
+
 
             // verify output - user gets VAULT token(s)
             {
@@ -116,8 +123,11 @@ describe("Vault 2", () => {
             }
 
             // call: burn
-            tx = await m_vault2_contract.connect(caller).burn(user_burns_eth);
-            await tx.wait();
+            await expect(m_vault2_contract.connect(caller)
+                .burn(user_burns_eth))
+                .to.emit(m_vault2_contract, "Burn")
+                .withArgs(caller.address, user_burns_eth);
+
 
             // verify output - user burns VAULT TOKEN
             {
@@ -156,9 +166,13 @@ describe("Vault 2", () => {
             // call: mint (for all users)
             let expected_vault_eth_balance = 0;
             for (let caller_index = 0; caller_index < arry_callers.length; caller_index++) {
-                let tx = await m_vault2_contract.connect(arry_callers[caller_index]).mint(
-                    {value: arry_deposited_eth[caller_index]});
-                await tx.wait();
+
+                // call
+                await expect(m_vault2_contract.connect(arry_callers[caller_index]).mint(
+                    {value: arry_deposited_eth[caller_index]}))
+                    .to.emit(m_vault2_contract, "Mint")
+                    .withArgs(arry_callers[caller_index].address, arry_deposited_eth[caller_index]);
+
 
                 expected_vault_eth_balance += arry_deposited_eth[caller_index];
             }
@@ -190,10 +204,11 @@ describe("Vault 2", () => {
             let post_burn_vault_treasury = 0;
             for (let caller_index = 0; caller_index < arry_callers.length; caller_index++) {
 
-                let tx =
-                    await m_vault2_contract
-                        .connect(arry_callers[caller_index]).burn(arry_user_burns_eth[caller_index]);
-                await tx.wait();
+                await expect(m_vault2_contract
+                    .connect(arry_callers[caller_index])
+                    .burn(arry_user_burns_eth[caller_index]))
+                    .to.emit(m_vault2_contract, "Burn")
+                    .withArgs(arry_callers[caller_index].address, arry_user_burns_eth[caller_index]);
 
                 post_burn_vault_treasury += (arry_deposited_eth[caller_index] - arry_user_burns_eth[caller_index]);
             }
