@@ -73,6 +73,7 @@ receive() exists?  fallback()
 contract Vault2 is EtherReceiver {// } is ERC20 {
 
     address m_owner;
+    // TODO: remove when ready
     uint m_eth_treasury;
     // TODO: ETH receiving issues separate; make Vault2 inherit ERC20
     VaultToken m_vault_token;
@@ -112,9 +113,8 @@ contract Vault2 is EtherReceiver {// } is ERC20 {
 
         // send submitted ETH to this contract
         m_eth_treasury += _amount;
-        payable(address(this)).transfer(_amount);
-//        (bool sent,) = payable(address(this)).call{value : _amount}("");
-//        require(sent, "Vault failed to receive Ether");
+        (bool sent,) = payable(address(this)).call{value : _amount}("");
+        require(sent, "Vault failed to receive Ether");
 
         //        // mint VAULT tokens to caller in 1:1 ratio of submitted ETH
         //        _mint(msg.sender, _amount);
