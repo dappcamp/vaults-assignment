@@ -2,6 +2,7 @@ const {expect} = require("chai");
 const {ethers} = require("hardhat");
 const { smock } = require('@defi-wonderland/smock');
 
+// TODO: edge cases
 describe("Vault 1", () => {
 
     let m_vault1_owner;
@@ -161,11 +162,6 @@ describe("Vault 1", () => {
 
 
         });
-
-        // TODO: when you return -
-        //  0) commit what you have
-        //  1a) edge cases
-        //  1b) implement Vault2
     });
 });
 
