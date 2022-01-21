@@ -5,37 +5,6 @@ import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-// TODO: just make Vault2 the token
-// basic VAULT token
-contract VaultToken is ERC20 {
-
-    address m_owner;
-
-    constructor() ERC20("VAULT Token", "VAULT") {
-        m_owner = msg.sender;
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == m_owner, "must be called by owner");
-        _;
-    }
-
-    function mint(address _account, uint _amount) public onlyOwner {
-        // mint VAULT tokens to contract owner for requested amount
-        _mint(_account, _amount);
-    }
-    //    function mint(uint _amount) public onlyOwner {
-    //        // mint VAULT tokens to contract owner for requested amount
-    //        _mint(msg.sender, _amount);
-    //    }
-    //    function burn(uint _amount) public onlyOwner {
-    //        // burn VAULT tokens of
-    //        _burn(msg.sender, _amount);
-    //    }
-    function burn(address _account, uint _amount) public onlyOwner {
-        _burn(_account, _amount);
-    }
-}
 
 // source: https://solidity-by-example.org/sending-ether/
 contract EtherReceiver {
@@ -73,37 +42,25 @@ receive() exists?  fallback()
 // Develop a vault where users can wrap their ether.
 // Users should be able to send ether and receive an equal amount of VAULT tokens.
 // On burning those tokens, users should get ether back.
-// TODO: remove when ready
-contract Vault2 is EtherReceiver {// } is ERC20 {
+contract Vault2 is ERC20, EtherReceiver {
 
     address m_owner;
-    // TODO: remove when ready
-    uint m_eth_treasury;
-    // TODO: ETH receiving issues separate; make Vault2 inherit ERC20
-    VaultToken m_vault_token;
 
-    // TODO: remove comment
-    constructor() {// ERC20("VAULT Token", "VAULT") {
+    constructor() ERC20("VAULT Token", "VAULT") {
         m_owner = msg.sender;
-        m_vault_token = new VaultToken();
     }
 
     function getBalanceEth() external view returns (uint) {
         return getBalance();
     }
-    function getBalanceVaultForUser(address _user) external view returns(uint) {
-        return m_vault_token.balanceOf(_user);
-    }
-    function getBalanceVault() external view returns(uint) {
-        return m_vault_token.balanceOf(msg.sender);
+
+    function getBalanceVaultForUser(address _user) external view returns (uint) {
+        return balanceOf(_user);
     }
 
-
-    //TODO: for mint
-    //Guard against re-entrancy by
-    //
-    //making all state changes before calling other contracts
-    //using re-entrancy guard modifier
+    function getBalanceVault() external view returns (uint) {
+        return balanceOf(msg.sender);
+    }
 
     // A payable function which should take ether and mint equal amount of VAULT tokens
     function mintInner(uint256 _amount) private {
@@ -115,12 +72,11 @@ contract Vault2 is EtherReceiver {// } is ERC20 {
         console.log("caller_balance_eth: %d", caller_balance_eth);
 
         // send submitted ETH to this contract
-//        payable(address(this)).transfer(_amount);
         (bool sent,) = payable(address(this)).call{value : _amount}("");
         require(sent, "Vault failed to receive Ether");
 
         // mint VAULT tokens to caller in 1:1 ratio of submitted ETH
-        m_vault_token.mint(msg.sender, _amount);
+        _mint(msg.sender, _amount);
     }
     function mint() public payable {
         mintInner(msg.value);
@@ -137,7 +93,7 @@ contract Vault2 is EtherReceiver {// } is ERC20 {
         require(sent, "Vault failed to send back Ether");
 
         // burn VAULT tokens of caller
-        m_vault_token.burn(msg.sender, _amount);
+        _burn(msg.sender, _amount);
     }
 
 }
