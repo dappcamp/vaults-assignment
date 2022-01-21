@@ -27,9 +27,12 @@ describe("Vault 2", () => {
             const caller = m_client1;
             const caller_address = m_client1.address;
 
+            let caller_balance = await caller.getBalance();
+
             // user deposits and burns this amount
             const deposited_eth = 1;
-            const deposited_wei = ethers.utils.parseEther(deposited_eth.toString());
+            expect(caller_balance.gt(deposited_eth)).to.equal(true);
+            // const deposited_wei = ethers.utils.parseEther(deposited_eth.toString());
             const user_burns_eth = 1;
             const post_burn_vault_user = 0;
             const post_burn_vault_treasury = 0;
