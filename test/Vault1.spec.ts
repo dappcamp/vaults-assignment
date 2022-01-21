@@ -1,8 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { Contract, ContractFactory } from "ethers";
+import { ContractFactory } from "ethers";
 import { ethers } from "hardhat";
-
 import { ERC20Mock as ERC20MockType } from "../typechain-types/ERC20Mock";
 import { Vault1 as Vault1Type } from "../typechain-types/Vault1";
 
@@ -12,7 +11,6 @@ describe("Vault1", () => {
   let vault1: Vault1Type;
   let token: ERC20MockType;
   let accounts: SignerWithAddress[];
-  let owner: SignerWithAddress;
   let account1: SignerWithAddress;
 
   const DEFAULT_VALUE = 5000;
