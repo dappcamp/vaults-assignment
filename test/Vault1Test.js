@@ -38,6 +38,9 @@ describe("Vault 1", () => {
 
 			const vaultBalance = await token1.balanceOf(vault1.address);
 			expect(vaultBalance).to.eq(100);
+
+			const userVaultBalance = await vault1.connect(elon).getBalance(token1.address);
+			expect(userVaultBalance).to.eq(100);
 		})
 
 		it("should work for other ERC20 tokens", async () => {
@@ -48,6 +51,9 @@ describe("Vault 1", () => {
 
 			const vaultBalance = await token2.balanceOf(vault1.address);
 			expect(vaultBalance).to.eq(100);
+
+			const userVaultBalance = await vault1.connect(elon).getBalance(token2.address);
+			expect(userVaultBalance).to.eq(100);
 		})
 
 		it("should revert when a user tries to deposit more than they have", async () => {
@@ -66,9 +72,12 @@ describe("Vault 1", () => {
 			const vaultBalance = await token1.balanceOf(vault1.address);
 			expect(vaultBalance).to.eq(100);
 			
-			await expect(vault1.connect(elon).withdraw(100, token1.address))
+			await expect(vault1.connect(elon).withdraw(10, token1.address))
 				.to.emit(vault1, "Withdraw")
-				.withArgs(elon.address, 100, token1.address);
+				.withArgs(elon.address, 10, token1.address);
+			
+			const userVaultBalance = await vault1.connect(elon).getBalance(token1.address);
+			expect(userVaultBalance).to.eq(90);
 		})
 
 		it("should work for other ERC20 tokens", async () => {
@@ -78,9 +87,12 @@ describe("Vault 1", () => {
 			const vaultBalance = await token2.balanceOf(vault1.address);
 			expect(vaultBalance).to.eq(100);
 			
-			await expect(vault1.connect(elon).withdraw(100, token2.address))
+			await expect(vault1.connect(elon).withdraw(10, token2.address))
 				.to.emit(vault1, "Withdraw")
-				.withArgs(elon.address, 100, token2.address);
+				.withArgs(elon.address, 10, token2.address);
+
+			const userVaultBalance = await vault1.connect(elon).getBalance(token2.address);
+			expect(userVaultBalance).to.eq(90);
 		})
 			
 		it("should revert when a user tries to withdraw more than they have stored", async () => {

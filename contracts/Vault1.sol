@@ -36,4 +36,8 @@ contract Vault1 {
         deposits[msg.sender][tokenAddress] -= amount;
         emit Withdraw(msg.sender, amount, tokenAddress);
     }
+
+    function getBalance(address tokenAddress) public view returns(uint) {
+        return deposits[msg.sender][tokenAddress];
+    }
 }
