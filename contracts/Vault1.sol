@@ -44,12 +44,13 @@ contract Vault1 {
     event Deposited(address _depositor, uint256 _amount);
     event Withdrawn(address _depositor, uint256 _amount);
 
-    // functions
+    // modifiers
     modifier amountGreaterThanZero (uint256 _amount){
         require (_amount > 0, "Deposit must be greater than zero.");
         _;
     }
-    
+
+    // functions
     /*
         @dev function to deposit an amount into the vault
     */

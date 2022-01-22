@@ -28,7 +28,7 @@ describe("Vault 1", () => {
 			expect(await vault1.owner()).to.equal(owner.address);
 		});
 
-		// test that the initial vault balance is 0
+		// test that the initial vault balance is 100 as set above
 		it ('Set the initial balance', async () => {
 			expect(await eggToken.balanceOf(depositor.address)).to.equal(100);
 			expect(await eggToken.balanceOf(vault1.address)).to.equal(100);
@@ -60,11 +60,6 @@ describe("Vault 1", () => {
 			it('Should fail when deposit is 0', async function () {
 				expect(vault1.connect(owner).deposit(0)).to.be.revertedWith("Deposit must be greater than zero.");
 			});
-
-			// withdrawal amount too large
-			it('Should fail when trying to withdraw more than available', async function (){
-				expect(vault1.connect(depositor).withdraw(100)).to.be.revertedWith("Not enough funds available");
-			});
 		});
 
 		describe ("Pass scenarios", function () {
@@ -90,7 +85,20 @@ describe("Vault 1", () => {
 				await eggToken.connect(depositor).approve(vault1.address, 5);
 				await expect(vault1.connect(depositor).deposit(5, {value: 5})).to.emit(vault1, "Deposited");
 			});
+		});
+	})
 
+	describe("Withdraw deposit", function (){
+		let deposit = 0;
+		let withdrawal = 0;
+		describe ("Revert scenarios", function () {
+			// withdrawal amount too large
+			it('Should fail when trying to withdraw more than available', async function (){
+				expect(vault1.connect(depositor).withdraw(100)).to.be.revertedWith("Not enough funds available");
+			});
+		});
+
+		describe ("Pass scenarios", function () {
 			// decrease balance after withdrawal
 			it("Should decrease balance after withdrawal", async function() {
 				// deposit some tokens to set up
@@ -99,7 +107,7 @@ describe("Vault 1", () => {
 				await vault1.connect(depositor).deposit(deposit, {value: deposit});
 				
 				// set allowance for transfers
-				let withdrawal = 5;
+				withdrawal = 5;
 				await eggToken.connect(depositor).approve(vault1.address, withdrawal);
 				
 				// capture initial balances
@@ -124,5 +132,5 @@ describe("Vault 1", () => {
 				await expect(vault1.connect(depositor).withdraw(5)).to.emit(vault1, "Withdrawn");
 			});
 		});
-	})
+	});
 });
