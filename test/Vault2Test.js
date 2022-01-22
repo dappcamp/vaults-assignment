@@ -62,27 +62,31 @@ describe("Vault 2", () => {
 		});
 	});
 
-	/*describe("exploit burn reentrancy", function () {
-		it("Burn VAULT user does not own should fail", async function () {
+	describe("exploit burn reentrancy", function () {
+		it("Test reentancy exploit", async function () {
+			const amount = ethers.utils.parseEther("0.000000000000001");
+			const options = {value: amount};
 			ReentrancyExploit = await ethers.getContractFactory("ReentrancyExploit");
-			[rowner] = await ethers.getSigners();
-			reentrancyExploit = await ReentrancyExploit.deploy();
+			reentrancyExploit = await ReentrancyExploit.deploy(vault2.address, options);
 			await reentrancyExploit.deployed();
 
-			expect(reentrancyExploit.getBalance()).to.equal(0);
-			// first check VAULT balance for exploit address to be 0
-			let rownerBalance = await vault2.balanceOf(rowner.address);
-			rownerBalance = rownerBalance.toNumber();
-			expect(rownerBalance).to.equal(0);
+			// load ETH onto vault2 contract which exploit can try to steal
+			await vault2.connect(acct1).load({value: ethers.utils.parseEther("100")});
+			expect(await vault2.getBalance()).to.equal(ethers.utils.parseEther("100"));
 
-			const options = {value: ethers.utils.parseEther("0.000000001")};
-			await reentrancyExploit.connect(rowner).receive();
+			// check exploitContract has some ETH to mint VAULT and then steall all ETH
+			// from vault2 contract using burn
+			let exploitContractEthBalance = await reentrancyExploit.getBalance();
+			exploitContractEthBalance = exploitContractEthBalance.toNumber();
+			expect(exploitContractEthBalance).to.equal(amount);
 
-			// check VAULT balance for exploit address
-			let acct1Balance = await vault2.balanceOf(acct1.address);
-			acct1Balance = acct1Balance.toNumber();
-			expect(acct1Balance).to.equal(0);
-			expect(reentrancyExploit.getBalance()).to.equal(0);
+			// attack should fail
+			await expect(
+				reentrancyExploit.initiateAttack()
+			).to.be.revertedWith("Failed to send Ether");
+
+			// check right ETH amount is still with vault2
+			expect(await vault2.getBalance()).to.equal(ethers.utils.parseEther("100"));
 		});
-	});*/
+	});
 });
