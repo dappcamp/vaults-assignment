@@ -26,10 +26,15 @@ contract Vault2 is ERC20 {
     }
 
     function burn(uint256 _amount) external noneZeroAmount(_amount) {
-        _burn(msg.sender, _amount);
+        require(
+            _amount <= balanceOf(msg.sender),
+            "Amount shouldn't be more than the balance"
+        );
 
         (bool sent, ) = msg.sender.call{value: _amount}("");
         require(sent, "Failed to send Ether");
+
+        _burn(msg.sender, _amount);
 
         emit Burned(msg.sender, _amount);
     }
