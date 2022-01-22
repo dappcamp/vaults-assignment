@@ -39,14 +39,11 @@ describe("Vault 1", () => {
     // Testing to ensure that we are emitting events
     it("Mints should emit minting event when minting occurs", async function () {
       let depositAmount = 10;
-      let address = account1["address"];
       await expect(
-        vault2
-          .connect(owner)
-          .mintTokens(address, depositAmount)
-          .to.emit(vault2, "tokensMinted")
-          .withArgs(address, depositAmount)
-      );
+        vault2.connect(owner).mintTokens(account1["address"], depositAmount)
+      )
+        .to.emit(vault2, "tokensMinted")
+        .withArgs(account1["address"], depositAmount);
     });
   });
   describe("burnTokens", function () {
@@ -79,9 +76,9 @@ describe("Vault 1", () => {
       await vault2
         .connect(owner)
         .mintTokens(account1["address"], depositAmount);
-      await vault2
-        .connect(owner)
-        .mintTokens(account1["address"], burnAmount)
+      await expect(
+        vault2.connect(owner).burnTokens(account1["address"], burnAmount)
+      )
         .to.emit(vault2, "tokensBurned")
         .withArgs(account1["address"], burnAmount);
     });
