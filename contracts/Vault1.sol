@@ -38,7 +38,7 @@ contract Vault1 is ERC20 {
   function withraw(uint _amount) external positiveAmount(_amount) {
     if(_amount > balanceOf(msg.sender))
       revert("Balance is lower than requested amount");
-      
+
     myToken.transfer(msg.sender, _amount);
     _balances[msg.sender] -= _amount;
 
@@ -46,6 +46,6 @@ contract Vault1 is ERC20 {
   }
 
   function balanceOf(address _account) public view virtual override returns (uint256) {
-      return _balances[_account];
-    }
+    return _balances[_account];
+  }
 }
