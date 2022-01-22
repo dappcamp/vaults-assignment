@@ -18,7 +18,7 @@ contract Vault1 {
     }
 
     function withdraw(uint256 amount) public {
-        token.transferFrom(address(this), msg.sender, amount);
+        token.transfer(msg.sender, amount);
         balanceOf[msg.sender] -= amount;
     }
 }
