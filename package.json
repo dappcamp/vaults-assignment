@@ -7,5 +7,27 @@
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.5.3",
     "hardhat": "^2.8.2"
-  }
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.4.2"
+  },
+  "description": "Develop a vault where users can deposit and withdraw any ERC20 token. Complete this contract in `contracts/Vault1.sol`.",
+  "version": "1.0.0",
+  "main": "hardhat.config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryn0/vaults-assignment.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ryn0/vaults-assignment/issues"
+  },
+  "homepage": "https://github.com/ryn0/vaults-assignment#readme"
 }
