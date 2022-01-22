@@ -17,16 +17,16 @@ contract Vault1 {
         contractAddr = address(this);
     }
 
-    function deposit(address tokenAddress, uint256 amount) public {
-        IERC20 targetERC20 = IERC20(tokenAddress);
-        targetERC20.transferFrom(msg.sender, contractAddr, amount);
-        emit Deposited(amount);
+    function deposit(address _tokenAddress, uint256 _amount) public {
+        IERC20 targetERC20 = IERC20(_tokenAddress);
+        targetERC20.transferFrom(msg.sender, contractAddr, _amount);
+        emit Deposited(_amount);
     }
 
-    function withdraw(address tokenAddress, uint256 amount) public {
-        IERC20 targetERC20 = IERC20(tokenAddress);
-        targetERC20.transfer(msg.sender, amount);
-        emit Withdrawn(amount);
+    function withdraw(address _tokenAddress, uint256 _amount) public {
+        IERC20 targetERC20 = IERC20(_tokenAddress);
+        targetERC20.transfer(msg.sender, _amount);
+        emit Withdrawn(_amount);
     }
 
 }
