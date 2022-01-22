@@ -2,17 +2,18 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./token_test.sol";
 
 contract Vault1 {
 
-    ERC20 token;
+    token_test token;
     //mapping of address to balance
     mapping(address => uint256) public balance;
 
     //contructor to set token type accepted by the vault
-constructor () {
+constructor (address tokenAddress) {
     
-       token =  ERC20(0xc778417E063141139Fce010982780140Aa0cD5Ab);
+     token = token_test(tokenAddress);// ERC20(0xc778417E063141139Fce010982780140Aa0cD5Ab);
 
     }
 
@@ -30,7 +31,8 @@ constructor () {
 
         require(_amount > 0, "Enter valid amount");
         require(_amount <= balance[msg.sender], "Withdrawal amount too high");
-        token.transferFrom(address(this),msg.sender, _amount);
+        //token.transferFrom(address(this),msg.sender, _amount);
+        token.transfer(msg.sender, _amount);
         balance[msg.sender]-= _amount;
 
 

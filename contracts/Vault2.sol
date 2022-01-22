@@ -14,6 +14,7 @@ receive() external payable {}
 
 function mint(uint256 _amount) external payable {
     //function _mint(address account, uint256 amount)
+    require(msg.value == _amount, "eth should equal to amount");
     _mint(msg.sender, _amount);
 
 }
@@ -21,17 +22,11 @@ function mint(uint256 _amount) external payable {
 
 function burn(uint256 _amount) external {
     //function _burn(address account, uint256 amount)
-
+ 
+    require(_amount > 0, "Invalid amount");
     payable(msg.sender).transfer(_amount);
     _burn(msg.sender, _amount);
     
-}
-
-
-function balanceEth() public view returns (uint256)
-{
-   return address(this).balance;
-
 }
 
 
