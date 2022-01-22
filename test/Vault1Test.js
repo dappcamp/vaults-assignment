@@ -14,25 +14,17 @@ describe("Vault 1", () => {
 		token1 = await Token1.deploy();
 		await token1.deployed();
 
-		const Token2 = await ethers.getContractFactory("Token2");
-		token2 = await Token2.deploy();
-		await token2.deployed();
-
-		// Add 1000 tokens of each to everyone's wallets
+		// Add 1000 tokens to everyone's wallets
 		await token1.connect(owner).transfer(elon.address, 1000);
 		await token1.connect(owner).transfer(jack.address, 1000);
 		await token1.connect(owner).transfer(preethi.address, 1000);
 
-		await token2.connect(owner).transfer(elon.address, 1000);
-		await token2.connect(owner).transfer(jack.address, 1000);
-		await token2.connect(owner).transfer(preethi.address, 1000);
+		const initialBalance = await token1.balanceOf(elon.address);
+		expect(initialBalance).to.eq(1000);
 	});
 
 	// Depositing
 	it("should emit a Deposit event when a deposit is successful", async () => {
-		const initialBalance = await token1.balanceOf(elon.address);
-		expect(initialBalance).to.eq(1000);
-
 		await token1.connect(elon).approve(vault1.address, 100);
 		await expect(vault1.connect(elon).deposit(100, token1.address))
 			.to.emit(vault1, "Deposit")
@@ -43,9 +35,6 @@ describe("Vault 1", () => {
 	})
 
 	it("should revert when a user tries to deposit more than they have", async () => {
-		const initialBalance = await token1.balanceOf(elon.address);
-		expect(initialBalance).to.eq(1000);
-
 		await token1.connect(elon).approve(vault1.address, 10000);
 		await expect(vault1.connect(elon).deposit(10000, token1.address))
 			.to.be.revertedWith("Insufficient balance")
@@ -53,9 +42,6 @@ describe("Vault 1", () => {
 		
 	// Withdrawing
 	it("should emit a Withdraw event when a withdraw is successful", async () => {
-		const initialBalance = await token1.balanceOf(elon.address);
-		expect(initialBalance).to.eq(1000);
-
 		await token1.connect(elon).approve(vault1.address, 100);
 		await vault1.connect(elon).deposit(100, token1.address);
 		
@@ -68,9 +54,6 @@ describe("Vault 1", () => {
 	})
 		
 	it("should revert when a user tries to withdraw more than they have stored", async () => {
-		const initialBalance = await token1.balanceOf(elon.address);
-		expect(initialBalance).to.eq(1000);
-
 		await token1.connect(elon).approve(vault1.address, 100);
 		await vault1.connect(elon).deposit(100, token1.address);
 		
