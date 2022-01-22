@@ -5,9 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Vault2 is ERC20 {
-    constructor() ERC20("Vault Token", "VAULT") {
-        _mint(address(this), 1000000);
-    }
+    constructor() ERC20("Vault Token", "VAULT") {}
 
     event Mint(address userAddress, uint amount);
     event Burn(address userAddress, uint amount);
@@ -25,9 +23,7 @@ contract Vault2 is ERC20 {
     }
 
     function mint(uint amount) external payable ensureEthAndAmountAreSame(amount) {
-        IERC20 token = IERC20(address(this));
-
-        token.transfer(msg.sender, amount);
+        _mint(msg.sender, amount);
 
         emit Mint(msg.sender, amount);
     }
@@ -36,6 +32,7 @@ contract Vault2 is ERC20 {
         IERC20 token = IERC20(address(this));
 
         token.transferFrom(msg.sender, address(this), amount);
+        _burn(address(this), amount);
         payable(msg.sender).transfer(amount);
 
         emit Burn(msg.sender, amount);
