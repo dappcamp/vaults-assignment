@@ -16,9 +16,7 @@ contract Vault2 is ERC20 {
     }
 
     modifier ensureVaultBalanceIsGreaterThanAmount(uint amount) {
-        IERC20 token = IERC20(address(this));
-
-        require(token.balanceOf(msg.sender) >= amount, "Invalid amount");
+        require(balanceOf(msg.sender) >= amount, "Invalid amount");
         _;
     }
 
@@ -32,7 +30,7 @@ contract Vault2 is ERC20 {
         IERC20 token = IERC20(address(this));
 
         token.transferFrom(msg.sender, address(this), amount);
-        _burn(address(this), amount);
+        _burn(address(this),amount);
         payable(msg.sender).transfer(amount);
 
         emit Burn(msg.sender, amount);
