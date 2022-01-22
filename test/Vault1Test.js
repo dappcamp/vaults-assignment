@@ -14,11 +14,18 @@ describe("Vault 1", () => {
 		token1 = await Token1.deploy();
 		await token1.deployed();
 
-		// Add 1000 tokens to everyone's wallets
-		await token1.connect(owner).transfer(elon.address, 1000);
+		const Token2 = await ethers.getContractFactory("Token2");
+		token2 = await Token2.deploy();
+		await token2.deployed();
 
-		const initialBalance = await token1.balanceOf(elon.address);
-		expect(initialBalance).to.eq(1000);
+		// Add 1000 of each token to user wallet
+		await token1.connect(owner).transfer(elon.address, 1000);
+		await token2.connect(owner).transfer(elon.address, 1000);
+
+		const initialToken1Balance = await token1.balanceOf(elon.address);
+		expect(initialToken1Balance).to.eq(1000);
+		const initialToken2Balance = await token2.balanceOf(elon.address);
+		expect(initialToken2Balance).to.eq(1000);
 	});
 
 	// Depositing
@@ -32,6 +39,16 @@ describe("Vault 1", () => {
 			const vaultBalance = await token1.balanceOf(vault1.address);
 			expect(vaultBalance).to.eq(100);
 		})
+
+		it("should work for other ERC20 tokens", async () => {
+			await token2.connect(elon).approve(vault1.address, 100);
+			await expect(vault1.connect(elon).deposit(100, token2.address))
+				.to.emit(vault1, "Deposit")
+				.withArgs(elon.address, 100, token2.address);
+
+			const vaultBalance = await token2.balanceOf(vault1.address);
+			expect(vaultBalance).to.eq(100);
+		}
 
 		it("should revert when a user tries to deposit more than they have", async () => {
 			await token1.connect(elon).approve(vault1.address, 10000);
