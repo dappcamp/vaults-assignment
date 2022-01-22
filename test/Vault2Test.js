@@ -35,7 +35,6 @@ describe("Vault 2", () => {
 			
 			const interimUserWethBalance = await vault2.balanceOf(preethi.address);
 
-			await vault2.connect(preethi).approve(vault2.address, 10);
 			await expect(vault2.connect(preethi).burn(10))
 				.to.emit(vault2, "Burn").withArgs(preethi.address, 10);
 
@@ -47,7 +46,6 @@ describe("Vault 2", () => {
 		it("Should not allow users to burn more VAULT than they have", async () => {
 			await vault2.connect(preethi).mint(100, { value: 100 });
 
-			await vault2.connect(preethi).approve(vault2.address, 10000);
 			await expect(vault2.connect(preethi).burn(10000))
 				.to.be.revertedWith("Invalid amount")
 

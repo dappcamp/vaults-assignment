@@ -27,10 +27,7 @@ contract Vault2 is ERC20 {
     }
 
     function burn(uint amount) external ensureVaultBalanceIsGreaterThanAmount(amount) {
-        IERC20 token = IERC20(address(this));
-
-        token.transferFrom(msg.sender, address(this), amount);
-        _burn(address(this),amount);
+        _burn(msg.sender, amount);
         payable(msg.sender).transfer(amount);
 
         emit Burn(msg.sender, amount);
