@@ -6,34 +6,49 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 pragma solidity ^0.8.4;
 
 contract Vault2 is ERC20 {
-    uint256 public totalSupply_;
     address public owner;
-    mapping(address => uint256) balances;
+    mapping(address => uint256) vaultBalances;
 
+    // Event for the ERC20 Token
+    event tokensMinted(address _owner, uint256 _amount);
+    event tokensBurned(address _owner, uint256 _amount);
+
+    // Constructor for ERC20 Token
     constructor() ERC20("Vault Token", "VAULT") {
-        _mint(msg.sender, 10000**18);
         owner = msg.sender;
+        _mint(owner, 10000**18);
+    }
+
+    // Modifier to force positive, non-zero amounts
+    modifier positiveAmounts(uint256 _amount) {
+        if (_amount <= 0) {
+            revert("You must put a non-zero, positive deposit");
+        }
+        _;
     }
 
     //A payable function which should take ether and mint equal amount of VAULT
-    function mintTokens(address to, uint256 amount) external {
-        // Mints number of ether
-        _mint(owner, amount);
+    function mintTokens(address _toAddress, uint256 _amount)
+        external
+        payable
+        positiveAmounts(_amount)
+    {
+        emit tokensMinted(_toAddress, _amount);
+        transfer(_toAddress, _amount);
     }
 
     //Should allow users to burn their tokens and get equal amount of ether back.
-    function burnTokens(uint256 amount) external {
-        require(msg.sender == owner, "Only owner can burn");
-        _burn(msg.sender, amount);
-        transferFrom(address(this), owner, amount);
+    function burnTokens(address _toAddress, uint256 _amount)
+        external
+        payable
+        positiveAmounts(_amount)
+    {
+        emit tokensBurned(_toAddress, _amount);
+        _burn(_toAddress, _amount);
     }
 
-    //Function to return the total token supply
-    function checkSupply() public view returns (uint256) {
-        return totalSupply_;
-    }
-
-    function checkBalance(address tokenOwner) public view returns (uint256) {
-        return balances[tokenOwner];
+    //Should check the balance of the vault
+    function checkBalance(address _address) public view returns (uint256) {
+        return vaultBalances[_address];
     }
 }

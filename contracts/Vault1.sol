@@ -2,50 +2,52 @@
 
 pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract VaultToken is ERC20 {
+    constructor() ERC20("VAULT", "Vault") {
+        _mint(msg.sender, 100 * 10**uint256(decimals()));
+    }
+}
 
 contract Vault1 {
-    address public immutable owner;
-    IERC20 private immutable vaultToken;
-    uint256 public _amount;
+    address public owner = msg.sender;
+    VaultToken vaultToken = VaultToken(owner);
 
-    mapping(address => mapping(IERC20 => uint256)) vaultBalance;
+    mapping(address => mapping(ERC20 => uint256)) vaultBalance;
 
     event depositEvent(uint256 _amount);
-    event transferEvent(uint256 _amount);
-
-    constructor(address _vaultOwner, IERC20 _vaultToken) {
-        owner = _vaultOwner;
-        vaultToken = _vaultToken;
-    }
+    event withdrawalEvent(uint256 _amount);
 
     //Should take in deposit amount. Assume that the contract is pre-approved to transfer that amount
-    function deposit(IERC20 _vaultToken, uint256 _amount) public payable {
-        if (_amount < 0) {
-            revert("Cannot add negative tokens"); //test
-        }
+    function deposit(uint256 _amount) public payable {
+        // Revert if amount deposited is 0
         if (_amount == 0) {
-            revert("Cannot add 0 tokens"); //test
+            revert("Cannot add 0 tokens");
         }
-        vaultToken.transfer(address(this), _amount);
-        vaultBalance[msg.sender][_vaultToken] =
-            vaultBalance[msg.sender][_vaultToken] +
+        vaultBalance[owner][vaultToken] =
+            vaultBalance[owner][vaultToken] +
             _amount;
 
         emit depositEvent(_amount);
     }
 
     //Should allow users to withdraw amount lesser than or equal to what they have deposited
-    function withdraw(IERC20 _vaultToken, uint256 _amount) public payable {
-        require(
-            vaultBalance[msg.sender][_vaultToken] < _amount,
-            "Withdrawing more than in the vault"
-        ); //test
-        vaultToken.transferFrom(address(this), msg.sender, _amount); //test
-        emit transferEvent(_amount);
+    function withdraw(uint256 _amount) public payable {
+        if (_amount == 0) {
+            revert("Cannot withdraw 0 tokens");
+        }
+        if (_amount > vaultBalance[owner][vaultToken]) {
+            revert("You cannot withdraw more than what you have");
+        }
+        vaultBalance[owner][vaultToken] =
+            vaultBalance[owner][vaultToken] -
+            _amount;
+        emit withdrawalEvent(_amount);
     }
 
     //Should allow users to check their balance
-    function checkBalance(IERC20 _vaultToken) public returns (uint256) {
-        return vaultBalance[msg.sender][_vaultToken];
+    function checkBalance() public view returns (uint256) {
+        return vaultBalance[owner][vaultToken];
     }
 }
