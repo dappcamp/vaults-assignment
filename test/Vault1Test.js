@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-const { ethers } = require("hardhat");
+const { ethers, artifacts } = require("hardhat");
 
 describe("Vault 1", () => {
 	let signers;
@@ -9,19 +9,18 @@ describe("Vault 1", () => {
 	let moonCoinContract;
 
 	beforeEach(async () => {
-		Vault1 = await ethers.getContractFactory("Vault1");
-		vault1Contract = await Vault1.deploy();
-		await vault1Contract.deployed();
-
 		signers = await ethers.getSigners();
 		deployer = signers[0];
 		tokenDeployer = signers[1];
 		alice = signers[2];
 
-		ERC20Coin = await ethers.getContractFactory("ERC20Coin", tokenDeployer.address);
+		Vault1 = await ethers.getContractFactory("Vault1");
+		vault1Contract = await Vault1.deploy();
+		await vault1Contract.deployed();
+
+		ERC20Coin = await ethers.getContractFactory("ERC20Coin");
 		moonCoinContract = await ERC20Coin.deploy("Moon Coin", "MOON", 10000);
 	});
-
 
 	let depositAmount = 10;
 
