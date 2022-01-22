@@ -68,6 +68,10 @@ describe("Vault 1", () => {
 
 		});
 
+	});
+
+	describe("withdraw", function() {
+
 		it("Withdraw 50 MIMU to Owner Address", async function() {
 
 			expect(

@@ -15,8 +15,4 @@ contract MimuToken is ERC20 {
         _mint(msg.sender, 1000);
     }
 
-    function getOwner() view public returns (address) {
-        return owner;
-    }
-
 }
