@@ -31,13 +31,24 @@ contract Vault {
         uint256 indexed amount
     );
 
-    function deposit(address _erc20TokenAddress, uint256 _amount) external {
+    modifier FromNonZeroAddress(address _erc20TokenAddress) {
         require(
             _erc20TokenAddress != address(0),
             "Token address can't be zero address"
         );
-        require(_amount > 0, "Amount must be > 0");
+        _;
+    }
 
+    modifier NonZeroAmount(uint256 _amount) {
+        require(_amount > 0, "Amount must be > 0");
+        _;
+    }
+
+    function deposit(address _erc20TokenAddress, uint256 _amount)
+        external
+        FromNonZeroAddress(_erc20TokenAddress)
+        NonZeroAmount(_amount)
+    {
         bool transferSucceeded = IERC20(_erc20TokenAddress).transferFrom(
             msg.sender,
             address(this),
@@ -50,13 +61,11 @@ contract Vault {
         emit Deposit(_erc20TokenAddress, msg.sender, _amount);
     }
 
-    function withdraw(address _erc20TokenAddress, uint256 _amount) external {
-        require(
-            _erc20TokenAddress != address(0),
-            "Token address can't be zero address"
-        );
-        require(_amount > 0, "Amount must be > 0");
-
+    function withdraw(address _erc20TokenAddress, uint256 _amount)
+        external
+        FromNonZeroAddress(_erc20TokenAddress)
+        NonZeroAmount(_amount)
+    {
         uint256 balance = _balanceOf(_erc20TokenAddress, msg.sender);
 
         require(balance >= _amount, "Not enough tokens deposited");
