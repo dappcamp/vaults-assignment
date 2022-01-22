@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 
 describe("Vault 1", () => {
 	beforeEach(async () => {
-		[owner, elon, jack, preethi] = await ethers.getSigners();
+		[owner, elon] = await ethers.getSigners();
 
 		Vault1 = await ethers.getContractFactory("Vault1");
 		vault1 = await Vault1.deploy();
@@ -16,8 +16,6 @@ describe("Vault 1", () => {
 
 		// Add 1000 tokens to everyone's wallets
 		await token1.connect(owner).transfer(elon.address, 1000);
-		await token1.connect(owner).transfer(jack.address, 1000);
-		await token1.connect(owner).transfer(preethi.address, 1000);
 
 		const initialBalance = await token1.balanceOf(elon.address);
 		expect(initialBalance).to.eq(1000);
