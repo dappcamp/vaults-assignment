@@ -4,9 +4,14 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Carbonium is ERC20('Carbonium', 'CO2') {
+contract Token1 is ERC20('Token1', 'TO1') {
     constructor() {
         _mint(msg.sender, 1000);
+    }
+}
+contract Token2 is ERC20('Token2', 'TO2') {
+    constructor() {
+        _mint(msg.sender, 10000);
     }
 }
 

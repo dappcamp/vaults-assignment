@@ -17,7 +17,8 @@ describe("Vault 2", () => {
 
 		it("mint VAULT", async function () {
 			const oldBalance = await provider.getBalance(owner.address);
-			expect( await provider.getBalance(vault2.address) == 0 ).to.be.true;
+			expect( await provider.getBalance(vault2.address) ).to.be.equal(0);
+
 			await (
 				vault2
 			    .connect(owner)
@@ -25,8 +26,9 @@ describe("Vault 2", () => {
 						value: ethers.utils.parseEther("1.0")
 				})
 			)
+
+			expect( await provider.getBalance(vault2.address)).to.be.equal(ethers.utils.parseEther("1.0"));
 			expect( await provider.getBalance(owner.address) < oldBalance ).to.be.true;
-			expect( await provider.getBalance(vault2.address) > 0 ).to.be.true;
 
 		});
 
@@ -49,7 +51,7 @@ describe("Vault 2", () => {
 					.burn(ethers.utils.parseEther("1.0"))
 			)
 			expect( await provider.getBalance(owner.address) > intermediateBalance ).to.be.true;
-			expect( await provider.getBalance(vault2.address) == 0 ).to.be.true;
+			expect( await provider.getBalance(vault2.address) ).to.be.equal(0);
 
 			await expect(
 				vault2
