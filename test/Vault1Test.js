@@ -38,7 +38,7 @@ describe("Vault 1", () => {
 		await token1.connect(elon).approve(vault1.address, 10000);
 		await expect(vault1.connect(elon).deposit(10000, token1.address))
 			.to.be.revertedWith("Insufficient balance")
-		})
+	})
 		
 	// Withdrawing
 	it("should emit a Withdraw event when a withdraw is successful", async () => {
