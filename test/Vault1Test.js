@@ -1,35 +1,33 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+//const { smoddit, smockit } = require("@eth-optimism/smock");
 
 describe("Vault 1", () => {
 	beforeEach(async () => {
+		//[owner, addr1] = await ethers.getSigners();
+
+		/*const MockERC20Factory = await smoddit("ERC20");
+		const mockERC20Contract = await MockERC20Factory.deploy();
+		console.log("Balance");
+		console.log(await vault2.balanceOf(acct1.address));
+		console.log("Balanceasdasdasad");
+		debugger;
+		mockERC20Contract.smodify.put({
+			_balances: {
+				[addr1]: 1000,
+			}
+		});*/
+
 		testERC20 = await (await ethers.getContractFactory("Vault1"));
 		await testERC20.deployed();
 
-
 		Vault1 = await ethers.getContractFactory("Vault1");
-		[owner, addr1] = await ethers.getSigners();
-		vault1 = await Vault1.deploy(testERC20.address);
+		vault1 = await Vault1.deploy(mockERC20Contract.address);
 		await vault1.deployed();
 	});
 
-	describe("deposit", function () {
+	/*describe("deposit", function () {
 		it("Requested VAULT should be equal to passed in Ether", async function () {
-			const options = {value: ethers.utils.parseEther("0.000000001")};
-			await expect(
-				vault2.connect(acct1).mint(1, options)
-			).to.be.revertedWith("Amount of VAULT requested != Ether passed");
-			let acct1Balance = await vault2.balanceOf(acct1.address);
-			acct1Balance = acct1Balance.toNumber();
-			expect(acct1Balance).to.equal(0);
 		});
-
-		it("Get VAULT equal to passed in Ether", async function () {
-			const options = {value: ethers.utils.parseEther("0.000000001")};
-			await vault2.connect(acct1).mint(10**9, options);
-			let acct1Balance = await vault2.balanceOf(acct1.address);
-			acct1Balance = acct1Balance.toNumber();
-			expect(acct1Balance).to.equal(10**9);
-		});
-	});
+	});*/
 });
