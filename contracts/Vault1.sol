@@ -43,7 +43,7 @@ contract Vault1 {
         if (success) {
             // Underflow is prevented by solidity >=0.8; It will revert
             balances[_token_addr] = balances[_token_addr] - _amount;
-            emit Deposit(msg.sender, _amount, _token_addr);
+            emit Withdraw(msg.sender, _amount, _token_addr);
         }
 
         return success;
