@@ -14,6 +14,6 @@
   },
   "scripts": {
     "build": "waffle",
-    "test": "SET NODE_OPTIONS=--openssl-legacy-provider && npx hardhat compile && npx hardhat test"
+    "test": "npx hardhat compile && npx hardhat test"
   }
 }
