@@ -70,6 +70,18 @@ describe("Vault 1", () => {
 				.to.emit(vault1, "Withdraw")
 				.withArgs(elon.address, 100, token1.address);
 		})
+
+		it("should work for other ERC20 tokens", async () => {
+			await token2.connect(elon).approve(vault1.address, 100);
+			await vault1.connect(elon).deposit(100, token2.address);
+			
+			const vaultBalance = await token2.balanceOf(vault1.address);
+			expect(vaultBalance).to.eq(100);
+			
+			await expect(vault1.connect(elon).withdraw(100, token2.address))
+				.to.emit(vault1, "Withdraw")
+				.withArgs(elon.address, 100, token2.address);
+		})
 			
 		it("should revert when a user tries to withdraw more than they have stored", async () => {
 			await token1.connect(elon).approve(vault1.address, 100);
