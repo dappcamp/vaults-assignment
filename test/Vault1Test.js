@@ -37,6 +37,12 @@ describe("Vault 1", () => {
 			).to.be.revertedWith("invalid amount");
 		});
 
+		it("should revert when amount is 0", async function () {
+			await expect(
+				vault1.connect(account1).withdraw(0)
+			).to.be.revertedWith("invalid amount");
+		});
+
 		it("should revert when not approved", async function () {
 			await expect(
 				vault1.connect(account1).deposit(100)
@@ -51,28 +57,25 @@ describe("Vault 1", () => {
 				.withArgs(account1.address, amount);
 		});
 
+		it("should revert when not enough funds to withdraw", async function () {
+			let amount = 100
+			await token.connect(account1).approve(vault1.address, amount)
+			await expect(vault1.connect(account1).deposit(amount));
+
+			await expect(
+				vault1.connect(account1).withdraw(amount+1)
+			).to.be.revertedWith("insufficient funds");
+		});
+
 		it("should emit withdraw event when valid", async function () {
 			let amount = 100
 			await token.connect(account1).approve(vault1.address, amount*2)
 			await expect(vault1.connect(account1).deposit(amount*2));
 
-			await expect(vault1.connect(account1).withdraw(amount))
-				.to.emit(vault1, "Withdraw")
+			await expect(
+				vault1.connect(account1).withdraw(amount)
+			).to.emit(vault1, "Withdraw")
 				.withArgs(account1.address, amount);
-
-			
 		});
-
-		// it("should revert when invalid animal is provided", async function () {
-		// 	await expect(
-		// 		petPark.connect(owner).add(AnimalType.None, 5)
-		// 	).to.be.revertedWith("Invalid animal");
-		// });
-
-		// it("should emit added event when pet is added", async function () {
-		// 	await expect(petPark.connect(owner).add(AnimalType.Fish, 5))
-		// 		.to.emit(petPark, "Added")
-		// 		.withArgs(AnimalType.Fish, 5);
-		// });
 	});
 });

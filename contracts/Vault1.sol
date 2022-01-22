@@ -24,7 +24,7 @@ contract Vault1 {
 
     function withdraw(uint _amount) external {
         require(_amount > 0, "invalid amount");
-        require(_amount <= userBalances[msg.sender]);
+        require(_amount <= userBalances[msg.sender], "insufficient funds");
 
         IERC20 token = IERC20(tokenAddress);
         require(_amount <= token.balanceOf(address(this)), "insufficient funds");
