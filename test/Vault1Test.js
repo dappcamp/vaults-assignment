@@ -18,7 +18,7 @@ describe("Vault 1", () => {
 		await bottleCapsToken.deployed();
 
 		Vault1 = await ethers.getContractFactory("Vault1", owner);
-		vault1Token = await Vault1.deploy();
+		vault1Token = await Vault1.deploy(bottleCapsToken.address);
 
 		await vault1Token.deployed();
 	});
@@ -33,30 +33,28 @@ describe("Vault 1", () => {
 
 	describe("#deposit", async function() {
 		it("should take in a deposit amount", async function() {
-			await bottleCapsToken.transfer(addr1.address, 3); // Have some caps to transfer
-			
-			let originalAddr1Balance = await bottleCapsToken.balanceOf(addr1.address);
+			await bottleCapsToken.connect(owner).transfer(addr1.address, 3); // Have some caps to transfer
 
-			await vault1Token.connect(addr1).deposit({
-				value: ethers.utils.parseEther("1.0")
-			});
+			await bottleCapsToken.connect(addr1).approve(vault1Token.address, 1);
+			await vault1Token.connect(addr1).deposit(1);
 
-			expect(await vault1Token.balanceOf(addr1.address)).to.eq(ethers.utils.parseEther("1.0"));
+			expect(await vault1Token.balanceOf(addr1.address)).to.eq(1);
 			// expect(await bottleCapsToken.balanceOf(addr1.address)).to.eq(originalAddr1Balance - 1);
 		})
 	});
 
 	// describe("#withdraw", async function() {
 	// 	it("should allow users to widthdraw <= what's deposited", async function() {
-	// 		await vault1Token.transfer(addr1.address, 50);
-			
-	// 		let originalOwnerBalance = await vault1Token.balanceOf(owner.address);
+	// 		await bottleCapsToken.transfer(addr1.address, 10);
+
 	// 		let originalAddr1Balance = await vault1Token.balanceOf(addr1.address);
 
+	// 		await vault1Token.connect(addr1).deposit({
+	// 			value: ethers.utils.parseEther("1.0")
+	// 		});
 	// 		await vault1Token.connect(addr1).withdraw(1);
-
-	// 		expect(await vault1Token.balanceOf(addr1.address)).to.eq(originalAddr1Balance + 1);
-	// 		expect(await vault1Token.balanceOf(owner.address)).to.eq(originalOwnerBalance - 1);
+			
+	// 		expect(await vault1Token.balanceOf(addr1.address)).to.eq(originalAddr1Balance);
 	// 	})
 	// });
 });

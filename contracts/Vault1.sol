@@ -2,24 +2,23 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./BottleCaps.sol";
+import "hardhat/console.sol";
 
 contract Vault1 {
-    BottleCaps public caps;
+    IERC20 private token;
     mapping(address => uint256) public balanceOf;
 
-    constructor() {}
+    constructor(address _tokenAddress) {
+        token = IERC20(_tokenAddress);
+    }
 
-    function deposit() external payable {
-        // require(caps.balanceOf(msg.sender) >= msg.value, "Insufficient caps");
-
-        // caps.transfer(ender, address(this), msg.value); Something like this happens automatically?
-        balanceOf[msg.sender] += msg.value;
+    function deposit(uint256 amount) external payable {
+        token.transferFrom(msg.sender, address(this), amount);
+        balanceOf[msg.sender] += amount;
     }
 
     function withdraw(uint256 amount) public {
-        // how to actually transfer
-        caps.transferFrom(address(this), msg.sender, amount);
+        token.transferFrom(address(this), msg.sender, amount);
         balanceOf[msg.sender] -= amount;
     }
 }
