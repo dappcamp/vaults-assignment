@@ -19,6 +19,7 @@ contract Vault1 {
 
     function withdraw(uint256 _amount) external {
         
+        require(_amount <= vaultBal[msg.sender]);
         vaultBal[msg.sender] -= _amount;
         emit withdrawed(_amount);
     }
