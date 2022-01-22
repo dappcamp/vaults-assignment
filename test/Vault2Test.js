@@ -10,4 +10,8 @@ describe("Vault 2", () => {
 
 		await vault2.deployed();
 	});
+
+	it("Should", async function() {
+		expect().to.equal();
+	});
 });

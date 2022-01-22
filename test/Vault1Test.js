@@ -10,4 +10,16 @@ describe("Vault 1", () => {
 
 		await vault1.deployed();
 	});
+
+	it("Should take a deposit of any amount", async function() {
+		expect().to.equal();
+	});
+
+	it("Should allow a withdraw up to the deposited amount", async function() {
+		expect().to.equal();
+	});
+
+	it("Should throw if withdraw amount exceeds the deposit amount", async function() {
+		expect().to.equal();
+	});
 });
