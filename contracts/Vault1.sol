@@ -99,13 +99,9 @@ contract Vault {
     function _balanceOf(address _erc20TokenAddress, address wallet)
         private
         view
+        FromNonZeroAddress(_erc20TokenAddress)
         returns (uint256)
     {
-        require(
-            _erc20TokenAddress != address(0),
-            "Token address can't be zero address"
-        );
-
         return _vaults[wallet][_erc20TokenAddress];
     }
 }
