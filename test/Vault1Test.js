@@ -48,7 +48,7 @@ describe("Vault 1", () => {
 
 			const vaultBalance = await token2.balanceOf(vault1.address);
 			expect(vaultBalance).to.eq(100);
-		}
+		})
 
 		it("should revert when a user tries to deposit more than they have", async () => {
 			await token1.connect(elon).approve(vault1.address, 10000);
