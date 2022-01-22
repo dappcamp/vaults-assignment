@@ -18,6 +18,10 @@ contract Vault1 {
     }
 
     function withdraw(uint256 amount) public {
+        require(
+            balanceOf[msg.sender] >= amount,
+            "Attempted to withdraw more than current balance"
+        );
         token.transfer(msg.sender, amount);
         balanceOf[msg.sender] -= amount;
     }

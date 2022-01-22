@@ -48,10 +48,18 @@ describe("Vault 1", () => {
 			await bottleCapsToken.connect(owner).transfer(addr1.address, 3); 
 			await bottleCapsToken.connect(addr1).approve(vault1Token.address, 1);
 			await vault1Token.connect(addr1).deposit(1);
-			// await bottleCapsToken.connect(addr1).approve(vault1Token.address, 1);
 			await vault1Token.connect(addr1).withdraw(1);
 			expect(await vault1Token.balanceOf(addr1.address)).to.eq(0);
 			expect(await bottleCapsToken.balanceOf(addr1.address)).to.eq(3);
+		});
+		it("should not allow overdrafts", async function() {
+			await bottleCapsToken.connect(owner).transfer(addr1.address, 3); 
+			await bottleCapsToken.connect(addr1).approve(vault1Token.address, 1);
+			await vault1Token.connect(addr1).deposit(1);
+
+			await expect(
+				vault1Token.connect(addr1).withdraw(2)
+			).to.be.revertedWith("Attempted to withdraw more than current balance");
 		});
 	});
 });
