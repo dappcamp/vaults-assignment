@@ -4,9 +4,6 @@ const { describe, test } = require("mocha");
 
 describe("Vault 1", () => {
 	let owner;
-	let addr1;
-	let addr2;
-	let addrs;
 
 	let bananas;
 	let vault1;
@@ -14,7 +11,7 @@ describe("Vault 1", () => {
 	beforeEach(async () => {
 		const Bananas = await ethers.getContractFactory("Bananas");
 		const Vault1 = await ethers.getContractFactory("Vault1");
-		[owner, addr1, addr2, ...addrs] = await ethers.getSigners();
+		[owner] = await ethers.getSigners();
 
 		bananas = await Bananas.deploy(1000);
 		vault1 = await Vault1.deploy(bananas.address);
