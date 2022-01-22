@@ -10,7 +10,9 @@ contract Vault1 {
     event Withdraw(address userAddress, uint amount, address contractAddress);
 
     modifier hasRequiredBalanceInWallet(uint amount, address tokenAddress) {
-        require(IERC20(tokenAddress).balanceOf(msg.sender) >= amount, "Insufficient balance");
+        IERC20 token = IERC20(tokenAddress);
+
+        require(token.balanceOf(msg.sender) >= amount, "Insufficient balance");
         _;
     }
     modifier hasRequiredBalanceInVault(uint amount, address tokenAddress) {
