@@ -1,13 +1,17 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { ContractFactory } from "ethers";
 import { ethers } from "hardhat";
-import { ERC20Mock as ERC20MockType } from "../typechain-types/ERC20Mock";
-import { Vault1 as Vault1Type } from "../typechain-types/Vault1";
+
+import {
+  ERC20Mock as ERC20MockType,
+  Vault1 as Vault1Type,
+  Vault1__factory as Vault1Factory,
+  ERC20Mock__factory as ERC20MockFactory,
+} from "../typechain-types";
 
 describe("Vault1", () => {
-  let Vault1: ContractFactory;
-  let Token: ContractFactory;
+  let Vault1: Vault1Factory;
+  let Token: ERC20MockFactory;
   let vault1: Vault1Type;
   let token: ERC20MockType;
   let accounts: SignerWithAddress[];

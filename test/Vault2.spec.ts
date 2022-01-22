@@ -1,13 +1,12 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { ContractFactory } from "ethers";
 import { ethers } from "hardhat";
 
-import { Vault2 as Vault2Type } from "../typechain-types/Vault2";
+import { Vault2 as Vault2Type, Vault2__factory as Vault2Factory } from "../typechain-types";
 import { getGasWei } from "./helpers.spec";
 
 describe("Vault2", () => {
-  let Vault2: ContractFactory;
+  let Vault2: Vault2Factory;
   let vault2: Vault2Type;
   let accounts: SignerWithAddress[];
   let account1: SignerWithAddress;

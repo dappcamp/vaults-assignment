@@ -6,7 +6,6 @@ export type { ERC20Wrapper } from "./ERC20Wrapper";
 export type { IERC20Metadata } from "./IERC20Metadata";
 export type { IERC20 } from "./IERC20";
 export type { ERC20Mock } from "./ERC20Mock";
-export type { DeployedERC20 } from "./DeployedERC20";
 export type { Vault1 } from "./Vault1";
 export type { Vault2 } from "./Vault2";
 
@@ -15,6 +14,5 @@ export { ERC20Wrapper__factory } from "./factories/ERC20Wrapper__factory";
 export { IERC20Metadata__factory } from "./factories/IERC20Metadata__factory";
 export { IERC20__factory } from "./factories/IERC20__factory";
 export { ERC20Mock__factory } from "./factories/ERC20Mock__factory";
-export { DeployedERC20__factory } from "./factories/DeployedERC20__factory";
 export { Vault1__factory } from "./factories/Vault1__factory";
 export { Vault2__factory } from "./factories/Vault2__factory";
