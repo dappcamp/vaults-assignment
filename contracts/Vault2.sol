@@ -2,17 +2,35 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Vault2 is ERC20, ERC20Burnable, Ownable {
+contract Vault2 is ERC20 {
+    event Minted(address by, uint256 amount);
+    event Burned(address by, uint256 amount);
+
     constructor() ERC20("VAULT", "VAULT") {}
 
-    function mint(address to, uint256 amount) external onlyOwner {
-        _mint(to, amount);
+    modifier noneZeroAmount(uint256 _amount) {
+        require(_amount > 0, "Amount should be greater than 0");
+        _;
     }
 
-    function burn(uint256 amount) public override onlyOwner {
-        super.burn(amount);
+    function mint(uint256 _amount) external payable noneZeroAmount(_amount) {
+        require(
+            _amount == msg.value,
+            "Amount doesn't match the value of ETH sent"
+        );
+
+        _mint(msg.sender, _amount);
+
+        emit Minted(msg.sender, _amount);
+    }
+
+    function burn(uint256 _amount) external noneZeroAmount(_amount) {
+        _burn(msg.sender, _amount);
+
+        (bool sent, ) = msg.sender.call{value: _amount}("");
+        require(sent, "Failed to send Ether");
+
+        emit Burned(msg.sender, _amount);
     }
 }
