@@ -46,7 +46,7 @@ describe("Vault 2", () => {
 		it("Should not allow users to burn more VAULT than they have", async () => {
 			await vault2.connect(preethi).mint(100, { value: 100 });
 
-			await expect(vault2.connect(preethi).burn(10000))
+			await expect(vault2.connect(preethi).burn(101))
 				.to.be.revertedWith("Invalid amount")
 
 		})
