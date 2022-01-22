@@ -23,7 +23,8 @@ contract Vault1 {
     function deposit(uint amount, address tokenAddress) public hasRequiredBalanceInWallet(amount, tokenAddress) {
         IERC20 token = IERC20(tokenAddress);
         
-        token.transferFrom(msg.sender, address(this), amount);
+        bool success = token.transferFrom(msg.sender, address(this), amount);
+        require(success, "Transaction failed");
 
         deposits[msg.sender][tokenAddress] += amount;
         emit Deposit(msg.sender, amount, tokenAddress);
@@ -32,7 +33,8 @@ contract Vault1 {
     function withdraw(uint amount, address tokenAddress) public hasRequiredBalanceInVault(amount, tokenAddress) {
         IERC20 token = IERC20(tokenAddress);
 
-        token.transfer(msg.sender, amount);
+        bool success = token.transfer(msg.sender, amount);
+        require(success, "Transaction failed");
 
         deposits[msg.sender][tokenAddress] -= amount;
         emit Withdraw(msg.sender, amount, tokenAddress);
