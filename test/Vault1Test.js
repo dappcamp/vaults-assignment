@@ -41,8 +41,8 @@ describe("Vault 1", () => {
 				value: ethers.utils.parseEther("1.0")
 			});
 
-			expect(await bottleCapsToken.balanceOf(addr1.address)).to.eq(originalAddr1Balance - 3);
-			expect(await vault1Token.balanceOf(addr1.address)).to.eq(3);
+			expect(await vault1Token.balanceOf(addr1.address)).to.eq(ethers.utils.parseEther("1.0"));
+			// expect(await bottleCapsToken.balanceOf(addr1.address)).to.eq(originalAddr1Balance - 1);
 		})
 	});
 

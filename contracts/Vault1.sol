@@ -11,7 +11,9 @@ contract Vault1 {
     constructor() {}
 
     function deposit() external payable {
-        caps.transferFrom(msg.sender, address(this), msg.value);
+        // require(caps.balanceOf(msg.sender) >= msg.value, "Insufficient caps");
+
+        // caps.transfer(ender, address(this), msg.value); Something like this happens automatically?
         balanceOf[msg.sender] += msg.value;
     }
 
