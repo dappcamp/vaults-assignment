@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-const { ethers, waffle } = require("hardhat");
+const { ethers } = require("hardhat");
 
 describe("Vault 2", () => {
 	beforeEach(async () => {
@@ -9,8 +9,6 @@ describe("Vault 2", () => {
 		vault2 = await Vault2.deploy();
 		await vault2.deployed();
 		
-		initialVaultEthBalance = await waffle.provider.getBalance(vault2.address);
-		initialUserEthBalance = await waffle.provider.getBalance(preethi.address);
 		initialVaultWethBalance = await vault2.balanceOf(vault2.address);
 	});
 	
