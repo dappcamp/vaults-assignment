@@ -2,9 +2,8 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./OwnedContract.sol";
 
-contract Vault1 is OwnedContract {
+contract Vault1 {
     struct Account {
         mapping (IERC20 => uint256) erc20Balances;
     }

@@ -1,6 +1,18 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.4;
 
-contract Vault2 {
-    
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract Vault2 is ERC20("Vault2", "VAULT") {
+    function mint() external payable {
+        require(msg.value > 0, "No payment has been provided");
+
+        _mint(msg.sender, msg.value);
+    }
+
+    function burn(uint256 _amount) external {
+        _burn(msg.sender, _amount);
+
+        payable(msg.sender).transfer(_amount);
+    }
 }
