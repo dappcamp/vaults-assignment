@@ -29,15 +29,21 @@ contract Vault1 {
             address(this),
             _amount
         );
-        require(
-            sent,
-            "Error while transferring token from sender to the vault"
-        );
+        require(sent, "Error while transferring token");
 
         balanceOf[msg.sender] += _amount;
 
         emit Depositted(msg.sender, _amount);
     }
 
-    function withdraw(uint256 _amount) external noneZeroAmount(_amount) {}
+    function withdraw(uint256 _amount) external noneZeroAmount(_amount) {
+        require(balanceOf[msg.sender] >= _amount, "Not enough balance");
+
+        bool sent = tokenContract.transfer(msg.sender, _amount);
+        require(sent, "Error while transferring token");
+
+        balanceOf[msg.sender] -= _amount;
+
+        emit Withdrawn(msg.sender, _amount);
+    }
 }
