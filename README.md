@@ -1,3 +1,6 @@
+*Note* - The expectation is for you to write the tests to validate the contracts follow the specs. Once you understand whats asked of the contracts, you will realize thats its not that hard to get a basic working version. Tests will take a little more work though.  You can take a look at the pet park assignment tests for some inspiration and use [this](https://hardhat.org/tutorial/testing-contracts.html) for reference
+
+
 ## Vault 1 Assignment
 
 ### Goal
@@ -8,6 +11,7 @@ Develop a vault where users can deposit and withdraw any ERC20 token. Complete t
 
 -   `function deposit(_amount)` - Should take in deposit amount. Assume that the contract is pre-approved to transfer that amount
 -   `function withdraw(_amount)` - Should allow users to withdraw amount lesser than or equal to what they have deposited
+
 
 ## Vault 2 Assignment
 
@@ -43,5 +47,6 @@ Develop a vault where users can wrap their ether. Users should be able to send e
 
 ## Notes
 
--   Use events where necessary
--   Write tests for your contracts. Add them in `test` directory
+-   Prefer using OpenZeppelin contracts instead of implementing your own.
+-   Use events where necessary.
+-   Write tests for your contracts. Add them in `test` directory.
