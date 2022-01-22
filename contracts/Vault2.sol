@@ -27,7 +27,8 @@ contract Vault2 is ERC20 {
 
     function burn(uint amount) external ensureVaultBalanceIsGreaterThanAmount(amount) {
         _burn(msg.sender, amount);
-        payable(msg.sender).transfer(amount);
+        bool success = payable(msg.sender).send(amount);
+        require (success, "Transaction failed");
 
         emit Burn(msg.sender, amount);
     }
