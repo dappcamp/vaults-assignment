@@ -1,7 +1,6 @@
 import { Contract, ContractFactory, Signer } from "ethers";
-
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
+import { expect } from "chai";
+import { ethers } from "hardhat";
 
 describe("Vault 1", () => {
 
