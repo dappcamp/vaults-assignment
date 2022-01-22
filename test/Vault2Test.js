@@ -48,7 +48,6 @@ describe("Vault 2", () => {
 
 			await expect(vault2.connect(preethi).burn(101))
 				.to.be.revertedWith("Invalid amount")
-
 		})
 	})
 });
