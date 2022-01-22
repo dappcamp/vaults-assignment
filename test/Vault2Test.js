@@ -18,18 +18,27 @@ describe("Vault 2", () => {
 
 	test("mint", async () => {
 		expect(await vault2.vaultBalanceOf()).to.equal(0);
-		await vault2.mint(WEI_32_ETH, { value: WEI_32_ETH });
+
+		await expect(vault2.mint(WEI_32_ETH, { value: WEI_32_ETH }))
+			.to.emit(vault2, "Mint")
+			.withArgs(owner.address, WEI_32_ETH);
 
 		expect(await vault2.vaultBalanceOf()).to.equal(WEI_32_ETH);
 	});
 
 	test("burn", async () => {
 		expect(await vault2.vaultBalanceOf()).to.equal(0);
-		await vault2.mint(WEI_32_ETH, { value: WEI_32_ETH });
+
+		await expect(vault2.mint(WEI_32_ETH, { value: WEI_32_ETH }))
+			.to.emit(vault2, "Mint")
+			.withArgs(owner.address, WEI_32_ETH);
 
 		expect(await vault2.vaultBalanceOf()).to.equal(WEI_32_ETH);
 
-		await vault2.burn(WEI_32_ETH);
+		await expect(vault2.burn(WEI_32_ETH))
+			.to.emit(vault2, "Burn")
+			.withArgs(owner.address, WEI_32_ETH);
+			
 		expect(await vault2.vaultBalanceOf()).to.equal(0);
 	});
 });

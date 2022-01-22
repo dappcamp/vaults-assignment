@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract VaultToken is ERC20 {
     address owner;
+
     constructor(address _owner) ERC20("VaultToken", "VAULT") {
         owner = _owner;
         approve(_owner, 2**256 - 1);
@@ -17,7 +18,7 @@ contract VaultToken is ERC20 {
     }
 
     function mint(uint _amount) external onlyOwner {
-        _mint(msg.sender, _amount);
+        _mint(owner, _amount);
     }
 
     function burn(address _account, uint _amount) external onlyOwner {
@@ -30,9 +31,9 @@ contract Vault2 {
     VaultToken vaultToken;
     mapping(address => uint) balances;
 
-    /**
-     * @dev Constructor sets token that can be received
-     */
+    event Mint(address owner, uint amount);
+    event Burn(address owner, uint amount);
+
     constructor () {
         vaultToken = new VaultToken(address(this));
     }
@@ -42,6 +43,7 @@ contract Vault2 {
         vaultToken.mint(_amount);
         vaultToken.transfer(msg.sender, _amount);
         balances[msg.sender] += _amount;
+        emit Mint(msg.sender, _amount);
     }
 
     function burn(uint _amount) external {
@@ -49,6 +51,7 @@ contract Vault2 {
         vaultToken.burn(msg.sender, _amount);
         (bool _sent, ) = payable(msg.sender).call{value: _amount}("");
         require(_sent, "Failed to send Ether");
+        emit Burn(msg.sender, _amount);
     }
 
     function vaultBalanceOf() external view returns (uint) {
