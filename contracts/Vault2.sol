@@ -24,8 +24,8 @@ contract Vault2 is ERC20("Vault Test Token", "VT") {
         (bool success, ) = msg.sender.call{value: _amount}("");
         if (success) {
             _burn(msg.sender, _amount);
+            emit Burned(_amount);
         }
-        emit Burned(_amount);
     }
 
     function balance() public view returns (uint256) {
