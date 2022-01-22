@@ -27,8 +27,7 @@ contract Vault2 is ERC20 {
     function mint(uint amount) external payable ensureEthAndAmountAreSame(amount) {
         IERC20 token = IERC20(address(this));
 
-        token.approve(address(this), amount);
-        token.transferFrom(address(this), msg.sender, amount);
+        token.transfer(msg.sender, amount);
 
         emit Mint(msg.sender, amount);
     }

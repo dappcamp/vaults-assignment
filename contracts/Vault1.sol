@@ -30,8 +30,7 @@ contract Vault1 {
     function withdraw(uint amount, address tokenAddress) public hasRequiredBalanceInVault(amount, tokenAddress) {
         IERC20 token = IERC20(tokenAddress);
 
-        token.approve(address(this), amount);
-        token.transferFrom(address(this), msg.sender, amount);
+        token.transfer(msg.sender, amount);
 
         deposits[msg.sender][tokenAddress] -= amount;
         emit Withdraw(msg.sender, amount, tokenAddress);
