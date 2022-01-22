@@ -33,8 +33,8 @@ contract Vault2 is ERC20 {
         payable
         positiveAmounts(_amount)
     {
-        emit tokensMinted(_toAddress, _amount);
         transfer(_toAddress, _amount);
+        emit tokensMinted(_toAddress, _amount);
     }
 
     //Should allow users to burn their tokens and get equal amount of ether back.
@@ -43,8 +43,8 @@ contract Vault2 is ERC20 {
         payable
         positiveAmounts(_amount)
     {
-        emit tokensBurned(_toAddress, _amount);
         _burn(_toAddress, _amount);
+        emit tokensBurned(_toAddress, _amount);
     }
 
     //Should check the balance of the vault
