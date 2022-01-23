@@ -28,10 +28,13 @@ contract Vault1 {
 
     // prevent caller from withdrawing amount more than the balance
     function withdraw(uint _amount) payable external {
-        require(token.balanceOf(msg.sender) >= _amount, "Invalid amount to withdraw");
+        require(balances[msg.sender] >= _amount, "Invalid amount to withdraw");
 
-        token.transferFrom(address(this), msg.sender, _amount);
+        bool success = token.transfer(msg.sender, _amount);
+        
+        // require(balances[msg.sender] <= _amount, "Cannot withdraw more than current balance");
 
+        require(success, "Withdraw failed");
         emit Withdraw(_amount);
     }
 }

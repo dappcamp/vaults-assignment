@@ -46,28 +46,33 @@ describe("Vault 1", () => {
 	});
 
 	describe("withdraw", () => {
-		// it("should revert when the withdraw amount is more than balance ", async function() {
-		// 	const currentBalance = await vault1.connect(account1).getBalance();
-		// 	console.log("currentBalance: ", currentBalance.toNumber());
-			
-		// 	await expect(
-		// 		vault1.connect(account1).withdraw(10)
-		// 	).to.be.revertedWith("Invalid amount to withdraw");
-		// });
+		it("should revert when the withdraw amount is more than balance", async function() {
+			await tedToken.approve(vault1.address, 1000);
+			await vault1.connect(owner).deposit(1000);
+
+			await expect(
+				vault1.connect(owner).withdraw(100000)
+			).to.be.revertedWith("Invalid amount to withdraw");
+		});
 		
-		// it("correctly withdraws balance", async function() {
-		// 	await vault1.connect(account1).deposit(100);
+		it("correctly withdraws balance", async function() {
+			await tedToken.approve(vault1.address, 10000);
+			await vault1.connect(owner).deposit(10000);
 
-		// 	await vault1.connect(account1).withdraw(10);
-		// 	await expect(
-		// 		await vault1.connect(account1).getBalance()
-		// 	).to.eq("90");
-		// });
+			expect(await tedToken.balanceOf(owner.address)).to.equal(0);
 
-		// it("should emit withdraw event when account deposits", async function () {
-		// 	await expect(vault1.connect(account1).withdraw(10))
-		// 		.to.emit(vault1, "Withdraw")
-		// 		.withArgs(10);
-		// });
+			await vault1.connect(owner).withdraw(1000);
+
+			expect(await tedToken.balanceOf(owner.address)).to.eq(1000);
+		});
+
+		it("should emit withdraw event when account deposits", async function () {
+			await tedToken.approve(vault1.address, 10);
+			await vault1.connect(owner).deposit(10);
+
+			await expect(vault1.connect(owner).withdraw(10))
+				.to.emit(vault1, "Withdraw")
+				.withArgs(10);
+		});
 	});
 });
