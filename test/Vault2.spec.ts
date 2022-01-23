@@ -58,12 +58,6 @@ describe("Vault2", () => {
 
       expect(accountBalance).to.eq(10);
     });
-
-    it("Should emit a `Minted` event with _amount as value", async () => {
-      await expect(vault2.connect(account1).mint(10, { value: 10 }))
-        .to.emit(vault2, "Minted")
-        .withArgs(10);
-    });
   });
 
   /**
@@ -130,12 +124,6 @@ describe("Vault2", () => {
 
       // Account balance after burning === mint balance - gas + BURN_AMOUNT
       expect(mintBalance.sub(burnGasPrice).add(BURN_AMOUNT)).to.eq(burnBalance);
-    });
-
-    it("Should emit a `Burned` event with _amount as value", async () => {
-      await vault2.connect(account1).mint(10, { value: 10 });
-
-      await expect(vault2.connect(account1).burn(10)).to.emit(vault2, "Burned").withArgs(10);
     });
   });
 });

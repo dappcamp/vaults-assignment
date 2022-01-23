@@ -99,14 +99,10 @@ export interface Vault2Interface extends utils.Interface {
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
-    "Burned(uint256)": EventFragment;
-    "Minted(uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Burned"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Minted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
@@ -116,14 +112,6 @@ export type ApprovalEvent = TypedEvent<
 >;
 
 export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
-
-export type BurnedEvent = TypedEvent<[BigNumber], { _amount: BigNumber }>;
-
-export type BurnedEventFilter = TypedEventFilter<BurnedEvent>;
-
-export type MintedEvent = TypedEvent<[BigNumber], { _amount: BigNumber }>;
-
-export type MintedEventFilter = TypedEventFilter<MintedEvent>;
 
 export type TransferEvent = TypedEvent<
   [string, string, BigNumber],
@@ -339,12 +327,6 @@ export interface Vault2 extends BaseContract {
       spender?: string | null,
       value?: null
     ): ApprovalEventFilter;
-
-    "Burned(uint256)"(_amount?: null): BurnedEventFilter;
-    Burned(_amount?: null): BurnedEventFilter;
-
-    "Minted(uint256)"(_amount?: null): MintedEventFilter;
-    Minted(_amount?: null): MintedEventFilter;
 
     "Transfer(address,address,uint256)"(
       from?: string | null,

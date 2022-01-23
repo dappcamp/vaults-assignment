@@ -7,9 +7,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
   * @title Mint and burn vault
   */
 contract Vault2 is ERC20 {
-  event Minted(uint256 _amount);
-  event Burned(uint256 _amount);
-
   constructor () ERC20("Vault Wrapper", "VAULT") {}
 
   function mint(uint256 _amount) payable external {
@@ -17,8 +14,6 @@ contract Vault2 is ERC20 {
     require(msg.value == _amount, "Invalid amount, it should equal the amount of wei in the transaction.");
 
     ERC20._mint(msg.sender, msg.value);
-
-    emit Minted(_amount);
   }
 
   function burn(uint256 _amount) external {
@@ -28,7 +23,5 @@ contract Vault2 is ERC20 {
 
     (bool sent,) = msg.sender.call{value: _amount}("");
     require(sent, "Failed to send Ether");
-
-    emit Burned(_amount);
   }
 }
