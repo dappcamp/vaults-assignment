@@ -1,28 +1,46 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.4;
 
-import "./Owner.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "hardhat/console.sol";
 
-contract Vault1 {
+contract Vault1 is Ownable {
+    // what does this do exactly?
+    IERC20 public tokenContract;
 
-    // state storage should have the amounts of different ERC20s deposited by each address
-    // addr1 -> (DAI, 14)
-    //       -> (UNI, 10)
-
-    // store map of symbols to contract addresses?
-    
-    function deposit(uint _amount, string memory _symbol) public {
-        // must be able to identify the ERC20 that is being deposited
-        // must be able to find the ERC20 contract and call the transfer function
-        // keep track of deposited amounts for the sender
+    constructor(address _contractAccount) {
+        tokenContract = IERC20(_contractAccount);
     }
 
-    function withdraw(uint _amount) public {
-        // must be able to identify the ERC20 that is being requested
-        // check the contract balance of the sender
-        // amount should be less than the sender's balance in the contract 
-        // call the ERC20 contract transfer function
-        // keep track of the withdrawal
+    // should this be private?
+    mapping(address => uint256) public deposits;
+    
+    function deposit(uint256 _amount) external hasEnoughTokens(_amount) isValidAmount(_amount) {
+        tokenContract.allowance(msg.sender, address(this));
+        bool success = tokenContract.transferFrom(msg.sender, address(this), _amount);
+        require(success, "Deposit failed");
+        deposits[msg.sender] += _amount;
+    }
+
+    function withdraw(uint256 _amount) external hasSufficientFunds(_amount) isValidAmount(_amount) {
+        bool success = tokenContract.transferFrom(address(this), msg.sender, _amount);
+        require(success, "Withdrawal failed");
+        deposits[msg.sender] -= _amount;
+    }
+
+    modifier isValidAmount(uint _amount) {
+        require(_amount > 0, "Amount should be greater than zero");
+        _;
+    }
+
+    modifier hasSufficientFunds(uint _amount) {
+        require(deposits[msg.sender] >= _amount, "Insufficient funds");
+        _;
+    }
+
+    modifier hasEnoughTokens(uint _amount) {
+        require(tokenContract.balanceOf(msg.sender) >= _amount, "Insufficient tokens");
+        _;
     }
 }
