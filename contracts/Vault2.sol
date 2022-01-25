@@ -10,7 +10,7 @@ contract Vault2 is ERC20 {
     }
 
     function burn(uint256 _amount) public {
-        require(balanceOf(msg.sender) >= _amount);
+        require(balanceOf(msg.sender) >= _amount, "Not enough tokens");
         _burn(msg.sender, _amount);
         payable(msg.sender).transfer(_amount);
     }

@@ -44,4 +44,12 @@ describe("Vault 2", () => {
       Math.ceil(ethers.utils.formatEther(await owner.getBalance()))
     ).to.equal(Math.ceil(ethers.utils.formatEther(initialBalance)));
   });
+
+  it("should get reverted if tries to withdraw more than available", async () => {
+    [owner] = await ethers.getSigners();
+
+    await expect(
+      vault2.connect(owner).burn(ethers.utils.parseEther("0.5"))
+    ).to.be.revertedWith("Not enough tokens");
+  });
 });
