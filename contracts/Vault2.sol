@@ -31,7 +31,7 @@ contract Vault2 is ERC20{
     /// @notice Let's users burn vault tokens and get back ether
     /// @param _amount number of tokens to be burned
     function burn(uint _amount) external payable {
-        require(balanceOf(msg.sender) >= _amount, "User doesn't have enough Vault tokens to burn");
+        //require(balanceOf(msg.sender) >= _amount, "User doesn't have enough Vault tokens to burn");
         _burn(msg.sender, _amount);
         (bool sent, ) = payable(msg.sender).call{value: _amount}("");
         require(sent, "Failed to send Ether");

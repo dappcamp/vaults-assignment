@@ -31,7 +31,7 @@ describe("Vault 2", () => {
 			await vault.mint({value: 10});
 			await expect(
 				vault.burn(50)
-			).to.be.revertedWith("User doesn't have enough Vault tokens to burn");
+			).to.be.reverted;
 			await vault.burn(5);
 			const ownerTokenBalance = await vault.balanceOf(owner.address);
 			expect(await ownerTokenBalance).to.equal(5);
