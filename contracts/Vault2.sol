@@ -8,8 +8,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 /// @notice Used for minting/burning ERC20 tokens that user obtained by sending ether
 
 contract Vault2 is ERC20{
-    event Minted(address account, uint amount);
-    event Burned(address account, uint amount);
 
     constructor() ERC20("Vault", "VAULT") {
     }
@@ -28,7 +26,6 @@ contract Vault2 is ERC20{
     function mint() external payable {
         //require(msg.value == _amount, "Correct amount of ether is not sent");
         _mint(msg.sender, msg.value);
-        emit Minted(msg.sender, msg.value);
     }
 
     /// @notice Let's users burn vault tokens and get back ether
@@ -38,6 +35,5 @@ contract Vault2 is ERC20{
         _burn(msg.sender, _amount);
         (bool sent, ) = payable(msg.sender).call{value: _amount}("");
         require(sent, "Failed to send Ether");
-        emit Burned(msg.sender, _amount);
     }
 }
