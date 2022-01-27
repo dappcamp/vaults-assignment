@@ -42,11 +42,11 @@ describe("Vault2", function () {
         expect(laterbalance).to.equal(originalbalance + 20000);
     });
 
-	it("should emit minted event when valid details are provided", async function () {
+	/*it("should emit minted event when valid details are provided", async function () {
         await expect(vault2.mint(20000, {value: 20000}))
 			.to.emit(vault2, "Minted")
 			.withArgs(owner.address, 20000);
-	});
+	});*/
   });
 
   describe("burn", function () {
@@ -81,11 +81,11 @@ describe("Vault2", function () {
         expect(laterbalance).to.equal(originalbalance - 10000);
     });
 	
-	it("should emit burned event when valid details are provided", async function () {
+	/*it("should emit burned event when valid details are provided", async function () {
         await vault2.mint(20000, {value: 20000});
         await expect(vault2.burn(10000))
 			.to.emit(vault2, "Burned")
 			.withArgs(owner.address, 10000);
-	});
+	});*/
   });
 });
