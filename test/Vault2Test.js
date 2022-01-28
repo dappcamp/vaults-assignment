@@ -35,14 +35,6 @@ describe("Vault 2", () => {
       await niceMint(oneETH);
     });
 
-    it("should emit Minted event", async function() {
-      await vault2.connect(user).approve(vault2.address, oneETH);
-      await expect(
-        await vault2.connect(user).mint(oneETH, { value: oneETH })
-			).to.emit(vault2, "Minted")
-      .withArgs(user.address, oneETH);
-    });
-
     it("should revert when minting 0", async function () {
       await expect(
         niceMint(0)
@@ -68,15 +60,6 @@ describe("Vault 2", () => {
       expect(
         await ETH.getBalance(user.address)
       ).to.be.at.most(beforeETH.sub(depositAmount).add(burnAmount));
-    });
-
-    it("should emit Burn event", async function () {
-      await niceMint(oneETH);
-
-      await expect(
-        vault2.connect(user).burn(oneETH)
-			).to.emit(vault2, "Burn")
-      .withArgs(user.address, oneETH);
     });
 
     it("should revert when burning 0", async function () {

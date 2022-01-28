@@ -8,9 +8,6 @@ contract Vault2 is ERC20 {
 
   constructor() ERC20("VAULT", "VT") {}
 
-  event Minted(address _account, uint256 _amount);
-  event Burn(address _account, uint256 _amount);
-
   modifier positiveAmount(uint256 _amount) {
     if(_amount == 0)
       revert("Amount should be bigger than 0");
@@ -22,8 +19,6 @@ contract Vault2 is ERC20 {
       revert("ETH amount should be the same with minting amount");
 
     _mint(msg.sender, _amount);
-
-    emit Minted(msg.sender, _amount);
   }
 
   function burn(uint _amount) external positiveAmount(_amount) {
@@ -36,7 +31,5 @@ contract Vault2 is ERC20 {
     }
 
     _burn(msg.sender, _amount);
-
-    emit Burn(msg.sender, _amount);
   }
 }
