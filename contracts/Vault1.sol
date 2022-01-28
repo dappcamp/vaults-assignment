@@ -28,7 +28,7 @@ contract Vault1 is ERC20 {
     _;
   }
 
-  function deposit(uint _amount) payable external positiveAmount(_amount) {
+  function deposit(uint _amount) external positiveAmount(_amount) {
     myToken.transferFrom(msg.sender, address(this), _amount);
     _balances[msg.sender] += _amount;
 
